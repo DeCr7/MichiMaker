@@ -1,20 +1,12 @@
 package ni.edu.uam.michimaker.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -28,6 +20,14 @@ import ni.edu.uam.michimaker.viewmodel.StatsViewModel
 fun StatsScreen(
     navController: NavController
 ) {
+
+    val gradient = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFFFFAB91), // naranja suave
+            Color(0xFFFFCC80), // ámbar
+            Color(0xFFFF8A65) // coral
+        )
+    )
 
     val context = LocalContext.current
 
@@ -48,6 +48,7 @@ fun StatsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(gradient) // ✔ SOLO agregado aquí
             .padding(16.dp)
     ) {
 

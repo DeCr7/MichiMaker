@@ -10,19 +10,25 @@ object FilterCatalog {
         CatFilter(
             nombre = "Gato",
             earsRes = R.drawable.cat_ears,
-            noseRes = R.drawable.feline_nose
+            noseRes = R.drawable.feline_nose,
+            earsScale = 0.75f,
+            noseScale = 0.85f
         ),
 
         CatFilter(
             nombre = "Tigre",
             earsRes = R.drawable.tiger_ears,
-            noseRes = R.drawable.feline_nose
+            noseRes = R.drawable.feline_nose,
+            earsScale = 0.8f,
+            noseScale = 0.9f
         ),
 
         CatFilter(
             nombre = "Leon",
             earsRes = R.drawable.lion_ears,
-            noseRes = R.drawable.feline_nose
+            noseRes = R.drawable.feline_nose,
+            earsScale = 0.85f,
+            noseScale = 0.9f
         )
     )
 }
