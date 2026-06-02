@@ -2,6 +2,7 @@ package ni.edu.uam.michimaker.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.Face
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,10 +14,15 @@ class FaceDetectionViewModel(
 ) : ViewModel() {
 
     private val _state =
-        MutableStateFlow(FaceDetectionState())
+        MutableStateFlow(
+            FaceDetectionState()
+        )
 
     val state: StateFlow<FaceDetectionState> =
         _state.asStateFlow()
+
+    private var rostrosDetectados:
+            List<Face> = emptyList()
 
     fun detectarRostros(
         image: InputImage
@@ -29,30 +35,52 @@ class FaceDetectionViewModel(
             )
 
         detector.detectarRostros(
+
             image = image,
 
-            onSuccess = { cantidad ->
+            onSuccess = { faces ->
+
+                rostrosDetectados = faces
 
                 _state.value =
                     FaceDetectionState(
                         cargando = false,
-                        rostrosDetectados = cantidad,
-                        rostroEncontrado = cantidad > 0
+                        rostrosDetectados =
+                            faces.size,
+                        rostroEncontrado =
+                            faces.isNotEmpty(),
+                        mensajeError = null
                     )
             },
 
             onError = { exception ->
 
+                rostrosDetectados =
+                    emptyList()
+
                 _state.value =
                     FaceDetectionState(
                         cargando = false,
-                        mensajeError = exception.message
+                        rostrosDetectados = 0,
+                        rostroEncontrado = false,
+                        mensajeError =
+                            exception.message
+                                ?: "Error desconocido"
                     )
             }
         )
     }
 
+    fun obtenerRostros():
+            List<Face> {
+
+        return rostrosDetectados
+    }
+
     fun limpiarEstado() {
+
+        rostrosDetectados =
+            emptyList()
 
         _state.value =
             FaceDetectionState()

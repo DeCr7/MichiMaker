@@ -3,11 +3,23 @@ package ni.edu.uam.michimaker.ia
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetectorOptions
 
 class FaceDetectorManager {
 
+    private val options =
+        FaceDetectorOptions.Builder()
+            .setPerformanceMode(
+                FaceDetectorOptions
+                    .PERFORMANCE_MODE_ACCURATE
+            )
+            .enableTracking()
+            .build()
+
     private val detector =
-        FaceDetection.getClient()
+        FaceDetection.getClient(
+            options
+        )
 
     fun detectarRostros(
         image: InputImage,
@@ -16,8 +28,8 @@ class FaceDetectorManager {
     ) {
 
         detector.process(image)
-            .addOnSuccessListener { faces ->
-                onSuccess(faces)
+            .addOnSuccessListener {
+                onSuccess(it)
             }
             .addOnFailureListener {
                 onError(it)

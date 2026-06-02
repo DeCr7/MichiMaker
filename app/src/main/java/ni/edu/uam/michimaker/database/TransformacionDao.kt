@@ -18,6 +18,9 @@ interface TransformacionDao {
         transformacion: TransformacionEntity
     )
 
+    @Query("DELETE FROM transformaciones")
+    suspend fun eliminarTodo()
+
     @Query("SELECT * FROM transformaciones")
     fun obtenerTodas():
             Flow<List<TransformacionEntity>>

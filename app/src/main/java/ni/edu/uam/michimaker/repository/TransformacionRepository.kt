@@ -14,6 +14,10 @@ class TransformacionRepository(
         dao.insertar(transformacion)
     }
 
+    suspend fun limpiarTodo() {
+        dao.eliminarTodo()
+    }
+
     suspend fun eliminar(
         transformacion: TransformacionEntity
     ) {

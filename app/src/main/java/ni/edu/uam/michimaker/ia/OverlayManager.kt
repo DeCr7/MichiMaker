@@ -30,8 +30,8 @@ class OverlayManager {
         val overlayEscalado =
             Bitmap.createScaledBitmap(
                 overlay,
-                ancho.toInt(),
-                alto.toInt(),
+                ancho.toInt().coerceAtLeast(1),
+                alto.toInt().coerceAtLeast(1),
                 true
             )
 

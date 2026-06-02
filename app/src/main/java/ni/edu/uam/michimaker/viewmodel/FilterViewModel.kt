@@ -13,9 +13,11 @@ class FilterViewModel : ViewModel() {
     val filtroSeleccionado =
         _filtroSeleccionado.asStateFlow()
 
-    fun seleccionarFiltro(
-        filtro: CatFilter
-    ) {
+    fun seleccionarFiltro(filtro: CatFilter) {
         _filtroSeleccionado.value = filtro
+    }
+
+    fun limpiar() {
+        _filtroSeleccionado.value = null
     }
 }
