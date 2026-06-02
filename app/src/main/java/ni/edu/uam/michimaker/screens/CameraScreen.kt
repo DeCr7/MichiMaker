@@ -1,7 +1,8 @@
 package ni.edu.uam.michimaker.screens
 
 import android.Manifest
-import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,17 +25,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import ni.edu.uam.michimaker.navigation.Routes
 import ni.edu.uam.michimaker.utils.FileUtils
 import ni.edu.uam.michimaker.utils.PermissionManager
-import ni.edu.uam.michimaker.viewmodel.CameraViewModel
-import androidx.compose.material3.*
 import ni.edu.uam.michimaker.utils.PermissionRequestScreen
+import ni.edu.uam.michimaker.viewmodel.CameraViewModel
 
 @Composable
 fun CameraScreen(
@@ -43,9 +45,12 @@ fun CameraScreen(
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+
     val cameraState by viewModel.cameraState.collectAsState()
 
-    val previewView = remember { PreviewView(context) }
+    val previewView = remember {
+        PreviewView(context)
+    }
 
     val imageCapture = remember {
         ImageCapture.Builder()
@@ -53,44 +58,81 @@ fun CameraScreen(
             .build()
     }
 
-    // --- PERMISO ---
+    // Launcher moderno para permisos
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { granted ->
+
+            viewModel.actualizarPermiso(granted)
+        }
+
+    // Verificar permiso al abrir pantalla
     LaunchedEffect(Unit) {
-        val granted = PermissionManager.hasCameraPermission(context)
-        viewModel.actualizarPermiso(granted)
+        viewModel.actualizarPermiso(
+            PermissionManager.hasCameraPermission(context)
+        )
     }
 
+    // Verificar nuevamente al regresar a la pantalla
+    DisposableEffect(lifecycleOwner) {
+
+        val observer = LifecycleEventObserver { _, event ->
+
+            if (event == Lifecycle.Event.ON_RESUME) {
+
+                viewModel.actualizarPermiso(
+                    PermissionManager.hasCameraPermission(context)
+                )
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    // Pantalla de permiso
     if (!cameraState.hasPermission) {
+
         PermissionRequestScreen(
             onRequest = {
-                ActivityCompat.requestPermissions(
-                    context as Activity,
-                    arrayOf(Manifest.permission.CAMERA),
-                    100
+                permissionLauncher.launch(
+                    Manifest.permission.CAMERA
                 )
             }
         )
+
         return
     }
 
-    // --- CAMERA PREVIEW ---
+    // Vista previa de cámara
     AndroidView(
         factory = {
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+
+            val cameraProviderFuture =
+                ProcessCameraProvider.getInstance(context)
 
             cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
 
-                val preview = Preview.Builder().build().also {
-                    it.surfaceProvider = previewView.surfaceProvider
-                }
+                val cameraProvider =
+                    cameraProviderFuture.get()
 
-                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                val preview =
+                    Preview.Builder()
+                        .build()
+                        .also {
+                            it.surfaceProvider =
+                                previewView.surfaceProvider
+                        }
 
                 cameraProvider.unbindAll()
 
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
-                    cameraSelector,
+                    CameraSelector.DEFAULT_BACK_CAMERA,
                     preview,
                     imageCapture
                 )
@@ -102,45 +144,57 @@ fun CameraScreen(
         modifier = Modifier.fillMaxSize()
     )
 
-    // --- BOTÓN CAPTURA ---
+    // Botón de captura
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomCenter
     ) {
 
         Button(
-            modifier = Modifier
-                .padding(24.dp),
+            modifier = Modifier.padding(24.dp),
             onClick = {
 
                 viewModel.iniciarCaptura()
 
-                val file = FileUtils.crearArchivoImagen(context)
+                val file =
+                    FileUtils.crearArchivoImagen(context)
 
-                val outputOptions = ImageCapture.OutputFileOptions.Builder(file).build()
+                val outputOptions =
+                    ImageCapture.OutputFileOptions.Builder(file)
+                        .build()
 
                 imageCapture.takePicture(
                     outputOptions,
                     ContextCompat.getMainExecutor(context),
                     object : ImageCapture.OnImageSavedCallback {
 
-                        override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                        override fun onImageSaved(
+                            output: ImageCapture.OutputFileResults
+                        ) {
 
-                            val path = file.absolutePath
+                            val imagePath = file.absolutePath
 
-                            viewModel.capturaExitosa(path)
+                            viewModel.capturaExitosa(imagePath)
 
-                            navController.navigate(Routes.FILTER)
+                            navController.navigate(
+                                "filter/${android.net.Uri.encode(imagePath)}"
+                            )
                         }
 
-                        override fun onError(exception: ImageCaptureException) {
+                        override fun onError(
+                            exception: ImageCaptureException
+                        ) {
 
-                            viewModel.capturaFallida(exception.message ?: "Error cámara")
+                            viewModel.capturaFallida(
+                                exception.message
+                                    ?: "Error al capturar imagen"
+                            )
                         }
                     }
                 )
             }
         ) {
+
             Text("Capturar")
         }
     }

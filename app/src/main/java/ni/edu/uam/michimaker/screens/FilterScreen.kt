@@ -1,41 +1,40 @@
 package ni.edu.uam.michimaker.screens
 
+import android.net.Uri
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import ni.edu.uam.michimaker.navigation.Routes
 import ni.edu.uam.michimaker.utils.FilterCatalog
 import ni.edu.uam.michimaker.utils.FilterItem
 import ni.edu.uam.michimaker.utils.ImageUtils
-import ni.edu.uam.michimaker.viewmodel.CameraViewModel
 import ni.edu.uam.michimaker.viewmodel.FilterViewModel
 
 @Composable
 fun FilterScreen(
     navController: NavController,
-    cameraViewModel: CameraViewModel = viewModel(),
+    imagePath: String,
     filterViewModel: FilterViewModel = viewModel()
 ) {
 
-    val context = LocalContext.current
+    val selectedFilter by filterViewModel
+        .filtroSeleccionado
+        .collectAsState()
 
-    val cameraState by cameraViewModel.cameraState.collectAsState()
-    val selectedFilter by filterViewModel.filtroSeleccionado.collectAsState()
-
-    val imageBitmap = remember(cameraState.imagePath) {
-        cameraState.imagePath?.let {
-            ImageUtils.cargarBitmap(it)
+    val imageBitmap = remember(imagePath) {
+        if (imagePath.isNotBlank()) {
+            ImageUtils.cargarBitmap(imagePath)
+        } else {
+            null
         }
     }
 
@@ -45,8 +44,8 @@ fun FilterScreen(
             .padding(16.dp)
     ) {
 
-        // ---------------- IMAGE PREVIEW ----------------
         imageBitmap?.let { bitmap ->
+
             Image(
                 bitmap = bitmap.asImageBitmap(),
                 contentDescription = "Imagen capturada",
@@ -65,7 +64,6 @@ fun FilterScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // ---------------- FILTER LIST ----------------
         LazyColumn(
             modifier = Modifier.weight(1f)
         ) {
@@ -82,7 +80,6 @@ fun FilterScreen(
             }
         }
 
-        // ---------------- ACTION BUTTON ----------------
         Button(
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,14 +87,18 @@ fun FilterScreen(
             enabled = selectedFilter != null,
             onClick = {
 
-                val path = cameraState.imagePath ?: return@Button
                 val filtro = selectedFilter ?: return@Button
 
                 navController.navigate(
-                    "result/${path}/${filtro.nombre}"
+                    "result/${
+                        Uri.encode(imagePath)
+                    }/${
+                        Uri.encode(filtro.nombre)
+                    }"
                 )
             }
         ) {
+
             Text("Aplicar filtro")
         }
     }

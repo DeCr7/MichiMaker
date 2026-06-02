@@ -32,8 +32,16 @@ fun AppNavigation() {
             CameraScreen(navController)
         }
 
-        composable(Routes.FILTER) {
-            FilterScreen(navController)
+        composable(Routes.FILTER) { backStackEntry ->
+
+            val imagePath = Uri.decode(
+                backStackEntry.arguments?.getString("image") ?: ""
+            )
+
+            FilterScreen(
+                navController = navController,
+                imagePath = imagePath
+            )
         }
 
         composable("result/{image}/{filter}") { backStackEntry ->
