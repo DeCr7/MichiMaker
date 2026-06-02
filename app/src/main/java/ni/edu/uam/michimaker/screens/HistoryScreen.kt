@@ -8,15 +8,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import ni.edu.uam.michimaker.database.AppDatabaseProvider
+import ni.edu.uam.michimaker.navigation.Routes
 import ni.edu.uam.michimaker.repository.TransformacionRepository
 import ni.edu.uam.michimaker.utils.TransformacionItem
 import ni.edu.uam.michimaker.viewmodel.TransformacionViewModel
@@ -54,12 +60,26 @@ fun HistoryScreen(
         )
 
         Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier = Modifier.height(12.dp)
+        )
+
+        Button(
+            onClick = {
+                navController.navigate(Routes.HOME) {
+                    popUpTo(Routes.HOME)
+                }
+            }
+        ) {
+            Text("Volver al inicio")
+        }
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
         )
 
         Text(
-            text = "Total: ${state.total}",
-            style = MaterialTheme.typography.bodyMedium
+            text = "Total de transformaciones: ${state.total}",
+            style = MaterialTheme.typography.bodyLarge
         )
 
         Spacer(
@@ -73,11 +93,43 @@ fun HistoryScreen(
                 CircularProgressIndicator()
             }
 
+            state.error != null -> {
+
+                Text(
+                    text = "Error: ${state.error}",
+                    color = MaterialTheme.colorScheme.error
+                )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+                OutlinedButton(
+                    onClick = {
+                        navController.navigate(Routes.HOME)
+                    }
+                ) {
+                    Text("Volver")
+                }
+            }
+
             state.transformaciones.isEmpty() -> {
 
                 Text(
-                    text = "No hay transformaciones aún"
+                    text = "No hay transformaciones registradas."
                 )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+                OutlinedButton(
+                    onClick = {
+                        navController.navigate(Routes.CAMERA)
+                    }
+                ) {
+                    Text("Crear una transformación")
+                }
             }
 
             else -> {
@@ -87,7 +139,10 @@ fun HistoryScreen(
                         Arrangement.spacedBy(12.dp)
                 ) {
 
-                    items(state.transformaciones) { item ->
+                    items(
+                        items = state.transformaciones,
+                        key = { it.id }
+                    ) { item ->
 
                         TransformacionItem(
                             item = item,

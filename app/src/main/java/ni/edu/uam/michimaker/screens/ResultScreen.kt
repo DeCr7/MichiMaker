@@ -1,4 +1,5 @@
 package ni.edu.uam.michimaker.screens
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -6,7 +7,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,14 +37,20 @@ fun ResultScreen(
 
     val state by viewModel.state.collectAsState()
 
-    val bitmap = remember(state.resultadoImagen) {
+    val bitmap = remember(
+        state.resultadoImagen,
+        image
+    ) {
         state.resultadoImagen?.let {
             ImageUtils.cargarBitmap(it)
         } ?: ImageUtils.cargarBitmap(image)
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.procesarImagen(image, filter)
+    LaunchedEffect(image, filter) {
+        viewModel.procesarImagen(
+            image,
+            filter
+        )
     }
 
     Column(
@@ -49,35 +60,132 @@ fun ResultScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text(text = "Resultado", style = MaterialTheme.typography.titleLarge)
+        Text(
+            text = "Resultado",
+            style = MaterialTheme.typography.titleLarge
+        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
-        if (state.loading) {
+        when {
 
-            CircularProgressIndicator()
+            state.loading -> {
 
-        } else if (state.error != null) {
+                CircularProgressIndicator()
 
-            Text("Error: ${state.error}")
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
 
-        } else {
+                Text(
+                    text = "Aplicando filtro..."
+                )
+            }
 
-            Image(
-                bitmap = bitmap.asImageBitmap(),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(400.dp)
-            )
-        }
+            state.error != null -> {
 
-        Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Error: ${state.error}",
+                    color = MaterialTheme.colorScheme.error
+                )
 
-        Button(onClick = {
-            navController.navigate(Routes.HISTORY)
-        }) {
-            Text("Ver historial")
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
+
+                Button(
+                    onClick = {
+
+                        navController.navigate(
+                            Routes.CAMERA
+                        ) {
+                            popUpTo(Routes.HOME)
+                        }
+                    }
+                ) {
+                    Text(
+                        "Tomar otra foto"
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+
+                OutlinedButton(
+                    onClick = {
+
+                        navController.navigate(
+                            Routes.HOME
+                        ) {
+                            popUpTo(Routes.HOME) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                ) {
+                    Text(
+                        "Volver al inicio"
+                    )
+                }
+            }
+
+            bitmap != null -> {
+
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = "Resultado",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(400.dp)
+                )
+
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
+
+                Button(
+                    onClick = {
+                        navController.navigate(
+                            Routes.HISTORY
+                        )
+                    }
+                ) {
+                    Text(
+                        "Ver historial"
+                    )
+                }
+            }
+
+            else -> {
+
+                Text(
+                    text = "No se pudo cargar la imagen."
+                )
+
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
+
+                OutlinedButton(
+                    onClick = {
+
+                        navController.navigate(
+                            Routes.HOME
+                        ) {
+                            popUpTo(Routes.HOME) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                ) {
+                    Text(
+                        "Volver al inicio"
+                    )
+                }
+            }
         }
     }
 }
