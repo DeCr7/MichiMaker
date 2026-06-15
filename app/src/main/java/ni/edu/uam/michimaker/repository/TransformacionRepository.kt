@@ -13,33 +13,36 @@ class TransformacionRepository(
 
     suspend fun guardar(transformacion: TransformacionEntity) {
 
-        dao.insertar(transformacion)
-
         try {
 
             val dto = TransformacionDto(
-                id = transformacion.id,
+                id = null,
                 nombreFiltro = transformacion.nombreFiltro,
                 fecha = transformacion.fecha,
-                rutaImagen = transformacion.rutaImagen
+                rutaImagen = transformacion.rutaImagen,
+                usuarioId = null // luego se conecta con login
             )
 
-            Log.d("API", "=== INICIO REQUEST ===")
             Log.d("API", "DTO: $dto")
 
             val response = ApiClient.api.guardarTransformacion(dto)
 
-            Log.d("API", "CODE: ${response.code()}")
-            Log.d("API", "SUCCESS: ${response.isSuccessful}")
-
             if (response.isSuccessful) {
-                Log.d("API", "✔ ENVIADO OK")
+
+                Log.d("API", "✔ Guardado en backend")
+
+                dao.insertar(transformacion)
+
             } else {
-                Log.e("API", "✘ ERROR HTTP: ${response.errorBody()?.string()}")
+
+                Log.e(
+                    "API",
+                    "Error HTTP: ${response.errorBody()?.string()}"
+                )
             }
 
         } catch (e: Exception) {
-            Log.e("API_ERROR", "✘ ERROR DE RED / CONEXIÓN", e)
+            Log.e("API_ERROR", "Error de red", e)
         }
     }
 
@@ -47,21 +50,15 @@ class TransformacionRepository(
         dao.eliminarTodo()
     }
 
-    suspend fun eliminar(
-        transformacion: TransformacionEntity
-    ) {
+    suspend fun eliminar(transformacion: TransformacionEntity) {
         dao.eliminar(transformacion)
     }
 
-    fun obtenerTodas():
-            Flow<List<TransformacionEntity>> {
-
+    fun obtenerTodas(): Flow<List<TransformacionEntity>> {
         return dao.obtenerTodas()
     }
 
-    fun contar():
-            Flow<Int> {
-
+    fun contar(): Flow<Int> {
         return dao.contarTransformaciones()
     }
 }

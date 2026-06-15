@@ -5,6 +5,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface TransformacionApi {
 
@@ -16,4 +17,9 @@ interface TransformacionApi {
     @GET("transformaciones")
     suspend fun obtenerTransformaciones():
             Response<List<TransformacionDto>>
+
+    @GET("transformaciones/usuario/{id}")
+    suspend fun obtenerPorUsuario(
+        @Path("id") usuarioId: Int
+    ): Response<List<TransformacionDto>>
 }

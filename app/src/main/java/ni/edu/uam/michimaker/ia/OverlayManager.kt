@@ -12,20 +12,20 @@ class OverlayManager {
         x: Float,
         y: Float,
         ancho: Float,
-        alto: Float
+        alto: Float,
+        rotacion: Float = 0f
     ): Bitmap {
 
-        val resultado =
-            imagenBase.copy(
-                Bitmap.Config.ARGB_8888,
-                true
-            )
+        val resultado = imagenBase.copy(
+            Bitmap.Config.ARGB_8888,
+            true
+        )
 
-        val canvas =
-            Canvas(resultado)
+        val canvas = Canvas(resultado)
 
-        val paint =
-            Paint()
+        val paint = Paint(
+            Paint.ANTI_ALIAS_FLAG
+        )
 
         val overlayEscalado =
             Bitmap.createScaledBitmap(
@@ -35,12 +35,25 @@ class OverlayManager {
                 true
             )
 
+        // Guardar estado actual del canvas
+        canvas.save()
+
+        // Rotar alrededor del centro del overlay
+        canvas.rotate(
+            rotacion,
+            x + (ancho / 2f),
+            y + (alto / 2f)
+        )
+
         canvas.drawBitmap(
             overlayEscalado,
             x,
             y,
             paint
         )
+
+        // Restaurar estado original
+        canvas.restore()
 
         return resultado
     }

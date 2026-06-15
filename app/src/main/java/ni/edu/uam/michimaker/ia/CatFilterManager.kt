@@ -20,16 +20,18 @@ class CatFilterManager(
     private val detector: FaceDetectorManager,
     private val overlayManager: OverlayManager,
     private val storageManager: ImageStorageManager
+
 ) : FilterProcessor {
 
-    // Cache para evitar recrear bitmaps
     private val bitmapCache = mutableMapOf<Int, Bitmap>()
 
     override fun aplicarFiltro(
         rutaImagen: String,
         filtro: String
     ): String {
-        throw UnsupportedOperationException("Usar aplicarFiltroSuspend()")
+        throw UnsupportedOperationException(
+            "Usar aplicarFiltroSuspend()"
+        )
     }
 
     suspend fun aplicarFiltroSuspend(
@@ -37,92 +39,151 @@ class CatFilterManager(
         filtro: String
     ): String {
 
-        val bitmapOriginal = ImageUtils.cargarBitmap(rutaImagen)
+        val bitmapOriginal =
+            ImageUtils.cargarBitmap(rutaImagen)
 
-        val inputImage = InputImage.fromFilePath(
-            context,
-            Uri.fromFile(File(rutaImagen))
-        )
+        val inputImage =
+            InputImage.fromFilePath(
+                context,
+                Uri.fromFile(
+                    File(rutaImagen)
+                )
+            )
 
-        val faces = detectarRostrosSuspend(inputImage)
+        val faces =
+            detectarRostrosSuspend(
+                inputImage
+            )
 
         if (faces.isEmpty()) {
-            throw Exception("No se detectó ningún rostro")
+            throw Exception(
+                "No se detectó ningún rostro"
+            )
         }
 
-        // ✔ rostro más grande (más estable)
-        val rostro = faces.maxByOrNull {
-            it.boundingBox.width() * it.boundingBox.height()
-        }!!
+        val rostro =
+            faces.maxByOrNull {
+                it.boundingBox.width() *
+                        it.boundingBox.height()
+            }!!
 
-        val filtroSeleccionado = FilterCatalog.filtros.firstOrNull {
-            it.nombre.equals(filtro, ignoreCase = true)
-        } ?: throw Exception("Filtro no encontrado: $filtro")
+        val filtroSeleccionado =
+            FilterCatalog.filtros.firstOrNull {
+                it.nombre.equals(
+                    filtro,
+                    ignoreCase = true
+                )
+            }
+                ?: throw Exception(
+                    "Filtro no encontrado: $filtro"
+                )
 
-        // ✔ cache de bitmaps
-        val orejasBitmap = bitmapCache.getOrPut(filtroSeleccionado.earsRes) {
-            BitmapUtils.drawableToBitmap(context, filtroSeleccionado.earsRes)
-        }
+        val orejasBitmap =
+            bitmapCache.getOrPut(
+                filtroSeleccionado.earsRes
+            ) {
+                BitmapUtils.drawableToBitmap(
+                    context,
+                    filtroSeleccionado.earsRes
+                )
+            }
 
-        val hocicoBitmap = bitmapCache.getOrPut(filtroSeleccionado.noseRes) {
-            BitmapUtils.drawableToBitmap(context, filtroSeleccionado.noseRes)
-        }
+        val hocicoBitmap =
+            bitmapCache.getOrPut(
+                filtroSeleccionado.noseRes
+            ) {
+                BitmapUtils.drawableToBitmap(
+                    context,
+                    filtroSeleccionado.noseRes
+                )
+            }
 
-        var resultado = bitmapOriginal
+        var resultado =
+            bitmapOriginal
 
-        val cara = rostro.boundingBox
+        val cara =
+            rostro.boundingBox
 
         // =========================
-        // ESCALAS DINÁMICAS
+        // ROTACIÓN DE CABEZA
         // =========================
 
-        val earsScale = filtroSeleccionado.earsScale
-        val noseScale = filtroSeleccionado.noseScale
+        val rotacionCabeza =
+            -rostro.headEulerAngleZ
 
         // =========================
-        // OREJAS (mejor centrado)
+        // ESCALAS
         // =========================
 
-        val earsWidth = cara.width().toFloat() * earsScale
-        val earsHeight = cara.height().toFloat() * 0.6f
+        val earsScale =
+            filtroSeleccionado.earsScale
 
-        resultado = overlayManager.aplicarOverlay(
-            imagenBase = resultado,
-            overlay = orejasBitmap,
-            x = cara.centerX() - (earsWidth / 2f),
-            y = cara.top.toFloat() - (earsHeight * 0.8f),
-            ancho = earsWidth,
-            alto = earsHeight
+        val noseScale =
+            filtroSeleccionado.noseScale
+
+        // =========================
+        // OREJAS
+        // =========================
+
+        val earsWidth =
+            cara.width().toFloat() *
+                    earsScale
+
+        val earsHeight =
+            cara.height().toFloat() *
+                    0.6f
+
+        resultado =
+            overlayManager.aplicarOverlay(
+                imagenBase = resultado,
+                overlay = orejasBitmap,
+                x = cara.centerX() -
+                        (earsWidth / 2f),
+                y = cara.top.toFloat() -
+                        (earsHeight * 0.8f),
+                ancho = earsWidth,
+                alto = earsHeight,
+                rotacion = rotacionCabeza
+            )
+
+        // =========================
+        // HOCICO
+        // =========================
+
+        val noseWidth =
+            cara.width().toFloat() *
+                    noseScale
+
+        val noseHeight =
+            cara.height().toFloat() *
+                    0.35f
+
+        resultado =
+            overlayManager.aplicarOverlay(
+                imagenBase = resultado,
+                overlay = hocicoBitmap,
+                x = cara.centerX() -
+                        (noseWidth / 2f),
+                y = cara.centerY().toFloat() -
+                        (noseHeight * 0.2f),
+                ancho = noseWidth,
+                alto = noseHeight,
+                rotacion = rotacionCabeza
+            )
+
+        // =========================
+        // GUARDAR
+        // =========================
+
+        val rutaDestino =
+            storageManager
+                .crearRutaTransformada()
+
+        return ImageUtils.guardarBitmap(
+            resultado,
+            rutaDestino
         )
-
-        // =========================
-        // HOCICO (mejor centrado en nariz)
-        // =========================
-
-        val noseWidth = cara.width().toFloat() * noseScale
-        val noseHeight = cara.height().toFloat() * 0.35f
-
-        resultado = overlayManager.aplicarOverlay(
-            imagenBase = resultado,
-            overlay = hocicoBitmap,
-            x = cara.centerX() - (noseWidth / 2f),
-            y = cara.centerY().toFloat() - (noseHeight * 0.2f),
-            ancho = noseWidth,
-            alto = noseHeight
-        )
-
-        // =========================
-        // GUARDADO FINAL
-        // =========================
-
-        val rutaDestino = storageManager.crearRutaTransformada()
-
-        return ImageUtils.guardarBitmap(resultado, rutaDestino)
     }
-
-    // =========================
-    // FACE DETECTION SUSPEND
-    // =========================
 
     private suspend fun detectarRostrosSuspend(
         image: InputImage
