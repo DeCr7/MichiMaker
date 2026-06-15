@@ -5,15 +5,20 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class TransformacionDto {
+public class TransformacionFeedDto {
 
     private Integer id;
 
     private String nombreFiltro;
-
     private String fecha;
-
     private String rutaImagen;
 
     private Integer usuarioId;
+    private String username;
+    private String fotoPerfil;
+
+    public TransformacionFeedDto() {}
+
+    // GETTERS & SETTERS
+
 }
