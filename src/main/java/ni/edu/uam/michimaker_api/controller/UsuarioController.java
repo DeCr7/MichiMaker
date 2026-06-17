@@ -3,6 +3,7 @@ package ni.edu.uam.michimaker_api.controller;
 import ni.edu.uam.michimaker_api.dto.UsuarioDto;
 import ni.edu.uam.michimaker_api.entity.Usuario;
 import ni.edu.uam.michimaker_api.repository.UsuarioRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,5 +57,50 @@ public class UsuarioController {
     public List<Usuario> obtenerTodos() {
 
         return repository.findAll();
+    }
+
+    @GetMapping("/username/{username}")
+    public ResponseEntity<Usuario> obtenerPorUsername(
+            @PathVariable String username
+    ) {
+
+        Usuario usuario =
+                repository.findByUsername(
+                        username
+                );
+
+        if (usuario == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(
+                usuario
+        );
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Usuario> login(
+            @RequestBody UsuarioDto dto
+    ) {
+
+        Usuario usuario =
+                repository.findByUsername(
+                        dto.getUsername()
+                );
+
+        if (
+                usuario == null ||
+                        !usuario.getPassword()
+                                .equals(dto.getPassword())
+        ) {
+
+            return ResponseEntity
+                    .badRequest()
+                    .build();
+        }
+
+        return ResponseEntity.ok(
+                usuario
+        );
     }
 }

@@ -35,9 +35,11 @@ public class TransformacionController {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         Transformacion t = new Transformacion();
+
         t.setNombreFiltro(dto.getNombreFiltro());
         t.setFecha(dto.getFecha());
         t.setRutaImagen(dto.getRutaImagen());
+        t.setLeyenda(dto.getLeyenda());
         t.setUsuario(usuario);
 
         return ResponseEntity.ok(transformacionRepository.save(t));
@@ -78,11 +80,23 @@ public class TransformacionController {
         dto.setNombreFiltro(t.getNombreFiltro());
         dto.setFecha(t.getFecha());
         dto.setRutaImagen(t.getRutaImagen());
+        dto.setLeyenda(t.getLeyenda());
 
         dto.setUsuarioId(t.getUsuario().getId());
         dto.setUsername(t.getUsuario().getUsername());
         dto.setFotoPerfil(t.getUsuario().getFotoPerfil());
 
         return dto;
+    }
+
+    @GetMapping("/feed/random")
+    public ResponseEntity<List<TransformacionFeedDto>> feedRandom() {
+
+        return ResponseEntity.ok(
+                transformacionRepository.feedAleatorio()
+                        .stream()
+                        .map(this::toFeedDto)
+                        .toList()
+        );
     }
 }

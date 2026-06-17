@@ -16,6 +16,7 @@ public class TransformacionFeedDto {
     private Integer usuarioId;
     private String username;
     private String fotoPerfil;
+    private String leyenda;
 
     public TransformacionFeedDto() {}
 

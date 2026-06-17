@@ -28,6 +28,8 @@ public class Transformacion {
     )
     private Usuario usuario;
 
+    private String leyenda;
+
     public Transformacion() {
     }
 }

@@ -16,4 +16,6 @@ public class TransformacionDto {
     private String rutaImagen;
 
     private Integer usuarioId;
+
+    private String leyenda;
 }
