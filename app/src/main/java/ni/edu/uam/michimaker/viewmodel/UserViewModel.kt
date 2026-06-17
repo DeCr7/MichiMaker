@@ -1,5 +1,6 @@
 package ni.edu.uam.michimaker.viewmodel
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +15,7 @@ class UserViewModel : ViewModel() {
     private val repository =
         UsuarioRepository()
 
+
     // =========================
     // USUARIO ACTUAL
     // =========================
@@ -24,6 +26,7 @@ class UserViewModel : ViewModel() {
     val usuario:
             StateFlow<UsuarioDto?> =
         _usuario
+
 
     // =========================
     // LOGIN
@@ -36,6 +39,7 @@ class UserViewModel : ViewModel() {
             StateFlow<Boolean> =
         _loginExitoso
 
+
     // =========================
     // REGISTRO
     // =========================
@@ -46,6 +50,7 @@ class UserViewModel : ViewModel() {
     val registroExitoso:
             StateFlow<Boolean> =
         _registroExitoso
+
 
     // =========================
     // LOADING
@@ -58,6 +63,7 @@ class UserViewModel : ViewModel() {
             StateFlow<Boolean> =
         _loading
 
+
     // =========================
     // MENSAJES
     // =========================
@@ -68,6 +74,16 @@ class UserViewModel : ViewModel() {
     val mensaje:
             StateFlow<String> =
         _mensaje
+
+
+    private val _colorMensaje =
+        MutableStateFlow(Color.Red)
+
+    val colorMensaje:
+            StateFlow<Color> =
+        _colorMensaje
+
+
 
     // =========================
     // LOGIN
@@ -90,40 +106,61 @@ class UserViewModel : ViewModel() {
                         password
                     )
 
+
                 if (usuario != null) {
 
                     SessionManager.login(usuario)
 
-                    _usuario.value = usuario
+                    _usuario.value =
+                        usuario
 
-                    _loginExitoso.value = true
+                    _loginExitoso.value =
+                        true
+
 
                     _mensaje.value =
                         "Inicio de sesión exitoso"
 
+                    _colorMensaje.value =
+                        Color.Green
+
+
                 } else {
 
-                    _loginExitoso.value = false
+                    _loginExitoso.value =
+                        false
 
                     _mensaje.value =
                         "Usuario o contraseña incorrectos"
+
+                    _colorMensaje.value =
+                        Color.Red
                 }
+
 
             } catch (e: Exception) {
 
                 e.printStackTrace()
 
-                _loginExitoso.value = false
+                _loginExitoso.value =
+                    false
 
                 _mensaje.value =
                     "Error al iniciar sesión"
 
+                _colorMensaje.value =
+                    Color.Red
+
+
             } finally {
 
-                _loading.value = false
+                _loading.value =
+                    false
             }
         }
     }
+
+
 
     // =========================
     // REGISTRO
@@ -144,26 +181,48 @@ class UserViewModel : ViewModel() {
                         usuario
                     )
 
+
                 _registroExitoso.value =
                     exito
 
-                _mensaje.value =
-                    if (exito)
+
+                if (exito) {
+
+                    _mensaje.value =
                         "Cuenta creada correctamente"
-                    else
+
+                    _colorMensaje.value =
+                        Color.Green
+
+
+                } else {
+
+                    _mensaje.value =
                         "No se pudo crear la cuenta"
+
+                    _colorMensaje.value =
+                        Color.Red
+                }
+
 
             } catch (e: Exception) {
 
                 _mensaje.value =
                     "Error durante el registro"
 
+                _colorMensaje.value =
+                    Color.Red
+
+
             } finally {
 
-                _loading.value = false
+                _loading.value =
+                    false
             }
         }
     }
+
+
 
     // =========================
     // RESET
@@ -171,17 +230,35 @@ class UserViewModel : ViewModel() {
 
     fun limpiarEstados() {
 
-        _loginExitoso.value = false
-        _registroExitoso.value = false
-        _mensaje.value = ""
+        _loginExitoso.value =
+            false
+
+        _registroExitoso.value =
+            false
+
+        _mensaje.value =
+            ""
+
+        _colorMensaje.value =
+            Color.Red
     }
+
+
 
     fun cerrarSesion() {
 
         SessionManager.logout()
 
-        _usuario.value = null
+        _usuario.value =
+            null
 
-        _loginExitoso.value = false
+        _loginExitoso.value =
+            false
+
+        _mensaje.value =
+            ""
+
+        _colorMensaje.value =
+            Color.Red
     }
 }

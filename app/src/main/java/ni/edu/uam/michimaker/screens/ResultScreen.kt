@@ -125,7 +125,7 @@ fun ResultScreen(
                     modifier = Modifier.height(8.dp)
                 )
 
-                OutlinedButton(
+                Button(
                     onClick = {
 
                         navController.navigate(
@@ -227,7 +227,7 @@ fun ResultScreen(
                     modifier = Modifier.height(8.dp)
                 )
 
-                OutlinedButton(
+                Button(
                     modifier = Modifier.fillMaxWidth(),
 
                     onClick = {

@@ -82,7 +82,7 @@ fun RegisterScreen(
                         R.drawable.michimaker_logo
                     ),
                     contentDescription = null,
-                    modifier = Modifier.size(100.dp)
+                    modifier = Modifier.size(240.dp)
                 )
 
                 Spacer(

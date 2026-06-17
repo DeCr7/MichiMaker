@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import ni.edu.uam.michimaker.R
@@ -71,7 +72,7 @@ fun HomeScreen(
                 id = R.drawable.michimaker_logo
             ),
             contentDescription = "MichiMaker Logo",
-            modifier = Modifier.size(120.dp)
+            modifier = Modifier.size(240.dp)
         )
 
         Spacer(
@@ -80,7 +81,9 @@ fun HomeScreen(
 
         Text(
             text = "Bienvenido, ${usuario.nombre}",
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(
@@ -89,7 +92,9 @@ fun HomeScreen(
 
         Text(
             text = "@${usuario.username}",
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(
@@ -99,6 +104,8 @@ fun HomeScreen(
         Text(
             text = "Convierte tu rostro en una versión felina divertida 🐱",
             style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
             color = Color.Black
         )
 
@@ -166,7 +173,7 @@ fun HomeScreen(
             modifier = Modifier.height(12.dp)
         )
 
-        OutlinedButton(
+        Button(
             onClick = {
 
                 SessionManager.logout()

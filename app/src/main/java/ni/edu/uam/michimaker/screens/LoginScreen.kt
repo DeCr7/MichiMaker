@@ -39,6 +39,9 @@ fun LoginScreen(
     val loading by
     viewModel.loading.collectAsStateWithLifecycle()
 
+    val colorMensaje by
+    viewModel.colorMensaje.collectAsStateWithLifecycle()
+
     val mensaje by
     viewModel.mensaje.collectAsStateWithLifecycle()
 
@@ -87,7 +90,7 @@ fun LoginScreen(
                 R.drawable.michimaker_logo
             ),
             contentDescription = null,
-            modifier = Modifier.size(180.dp)
+            modifier = Modifier.size(240.dp)
         )
 
         Spacer(
@@ -233,10 +236,7 @@ fun LoginScreen(
                             CardDefaults.cardColors(
 
                                 containerColor =
-                                    if (loginExitoso)
-                                        Color(0xFFC8E6C9)
-                                    else
-                                        Color(0xFFFFCDD2)
+                                    colorMensaje.copy(alpha = 0.25f)
                             )
                     ) {
 
@@ -246,7 +246,7 @@ fun LoginScreen(
                             modifier =
                                 Modifier.padding(12.dp),
 
-                            color = Color.Black
+                            color = colorMensaje
                         )
                     }
 
