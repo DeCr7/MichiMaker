@@ -148,14 +148,14 @@ fun HistoryScreen(
                     modifier = Modifier.height(12.dp)
                 )
 
-                OutlinedButton(
+                Button(
                     onClick = {
                         navController.navigate(
                             Routes.CAMERA
                         )
                     }
                 ) {
-                    Text("Crear una transformación")
+                    Text("Crear una Transformación")
                 }
             }
 

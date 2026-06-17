@@ -137,7 +137,7 @@ fun ResultScreen(
                         }
                     }
                 ) {
-                    Text("Volver al inicio")
+                    Text("Volver al Inicio")
                 }
             }
 
@@ -166,6 +166,7 @@ fun ResultScreen(
 
                 OutlinedTextField(
                     value = leyenda,
+
                     onValueChange = {
                         leyenda = it
                     },
@@ -184,7 +185,41 @@ fun ResultScreen(
 
                     singleLine = false,
 
-                    minLines = 3
+                    minLines = 3,
+
+                    colors = OutlinedTextFieldDefaults.colors(
+
+                        focusedLabelColor =
+                            Color.Black,
+
+                        unfocusedLabelColor =
+                            Color.Black,
+
+
+                        focusedTextColor =
+                            Color.Black,
+
+                        unfocusedTextColor =
+                            Color.Black,
+
+
+                        focusedPlaceholderColor =
+                            Color.DarkGray,
+
+                        unfocusedPlaceholderColor =
+                            Color.Gray,
+
+
+                        focusedBorderColor =
+                            Color(0xFFBA68C8),
+
+                        unfocusedBorderColor =
+                            Color.Gray,
+
+
+                        cursorColor =
+                            Color(0xFFBA68C8)
+                    )
                 )
 
                 Spacer(
@@ -220,7 +255,7 @@ fun ResultScreen(
                         )
                     }
                 ) {
-                    Text("Guardar transformación")
+                    Text("Guardar Transformación")
                 }
 
                 Spacer(
@@ -246,7 +281,7 @@ fun ResultScreen(
                     modifier = Modifier.height(8.dp)
                 )
 
-                OutlinedButton(
+                Button(
                     modifier = Modifier.fillMaxWidth(),
 
                     onClick = {
@@ -256,7 +291,7 @@ fun ResultScreen(
                         )
                     }
                 ) {
-                    Text("Ver historial")
+                    Text("Ver Historial")
                 }
             }
 
@@ -270,7 +305,7 @@ fun ResultScreen(
                     modifier = Modifier.height(16.dp)
                 )
 
-                OutlinedButton(
+                Button(
                     onClick = {
 
                         navController.navigate(
@@ -282,7 +317,7 @@ fun ResultScreen(
                         }
                     }
                 ) {
-                    Text("Volver al inicio")
+                    Text("Volver al Inicio")
                 }
             }
         }

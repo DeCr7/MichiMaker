@@ -165,7 +165,7 @@ fun SettingsScreen(
         ) {
 
             Text(
-                "Volver al inicio"
+                "Volver al Inicio"
             )
         }
 
@@ -173,7 +173,7 @@ fun SettingsScreen(
             modifier = Modifier.height(12.dp)
         )
 
-        OutlinedButton(
+        Button(
             onClick = {
 
                 SessionManager.logout()
@@ -189,7 +189,7 @@ fun SettingsScreen(
         ) {
 
             Text(
-                "Cerrar sesión"
+                "Cerrar Sesión"
             )
         }
     }
