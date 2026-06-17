@@ -13,6 +13,9 @@ data class TransformacionEntity(
 
     val fecha: String,
 
-    val rutaImagen: String
-    
+    val rutaImagen: String,
+
+    val usuarioId: Int,
+
+    val leyenda: String = ""
 )

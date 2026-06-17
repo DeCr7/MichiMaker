@@ -5,13 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import ni.edu.uam.michimaker.screens.CameraScreen
-import ni.edu.uam.michimaker.screens.FilterScreen
-import ni.edu.uam.michimaker.screens.HistoryScreen
-import ni.edu.uam.michimaker.screens.HomeScreen
-import ni.edu.uam.michimaker.screens.ResultScreen
-import ni.edu.uam.michimaker.screens.SettingsScreen
-import ni.edu.uam.michimaker.screens.StatsScreen
+import ni.edu.uam.michimaker.screens.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import ni.edu.uam.michimaker.viewmodel.UserViewModel
 
 @Composable
 fun AppNavigation() {
@@ -19,10 +15,37 @@ fun AppNavigation() {
     val navController =
         rememberNavController()
 
+    val userViewModel: UserViewModel =
+        viewModel()
+
     NavHost(
         navController = navController,
-        startDestination = Routes.HOME
+        startDestination = Routes.LOGIN
     ) {
+
+        // =====================
+        // AUTENTICACIÓN
+        // =====================
+
+        composable(Routes.LOGIN) {
+
+            LoginScreen(
+                navController = navController,
+                viewModel = userViewModel
+            )
+        }
+
+        composable(Routes.REGISTER) {
+
+            RegisterScreen(
+                navController = navController,
+                viewModel = userViewModel
+            )
+        }
+
+        // =====================
+        // APP
+        // =====================
 
         composable(Routes.HOME) {
             HomeScreen(navController)
@@ -34,9 +57,12 @@ fun AppNavigation() {
 
         composable(Routes.FILTER) { backStackEntry ->
 
-            val imagePath = Uri.decode(
-                backStackEntry.arguments?.getString("image") ?: ""
-            )
+            val imagePath =
+                Uri.decode(
+                    backStackEntry.arguments
+                        ?.getString("image")
+                        ?: ""
+                )
 
             FilterScreen(
                 navController = navController,
@@ -44,10 +70,21 @@ fun AppNavigation() {
             )
         }
 
-        composable("result/{image}/{filter}") { backStackEntry ->
+        composable(Routes.RESULT) { backStackEntry ->
 
-            val image = Uri.decode(backStackEntry.arguments?.getString("image") ?: "")
-            val filter = Uri.decode(backStackEntry.arguments?.getString("filter") ?: "")
+            val image =
+                Uri.decode(
+                    backStackEntry.arguments
+                        ?.getString("image")
+                        ?: ""
+                )
+
+            val filter =
+                Uri.decode(
+                    backStackEntry.arguments
+                        ?.getString("filter")
+                        ?: ""
+                )
 
             ResultScreen(
                 navController = navController,

@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import ni.edu.uam.michimaker.navigation.Routes
 import ni.edu.uam.michimaker.utils.ImageUtils
+import ni.edu.uam.michimaker.utils.SessionManager
 import ni.edu.uam.michimaker.viewmodel.ResultViewModel
 
 @Composable
@@ -25,39 +26,51 @@ fun ResultScreen(
     viewModel: ResultViewModel = viewModel()
 ) {
 
-    // Fondo degradado consistente con toda la app
     val gradient = Brush.verticalGradient(
         colors = listOf(
             Color(0xFFBBDEFB), // azul claro
             Color(0xFFD1C4E9), // violeta suave
-            Color(0xFFE3F2FD) // azul hielo
+            Color(0xFFE3F2FD)  // azul hielo
         )
     )
 
-    val state by viewModel.state.collectAsState()
+    val usuario =
+        SessionManager.obtenerUsuario()
 
-    val bitmap = remember(
-        state.resultadoImagen,
-        image
-    ) {
-        state.resultadoImagen?.let {
-            ImageUtils.cargarBitmap(it)
-        } ?: ImageUtils.cargarBitmap(image)
+    var leyenda by remember {
+        mutableStateOf("")
     }
 
+    val state by viewModel.state.collectAsState()
+
     LaunchedEffect(image, filter) {
+
         viewModel.procesarImagen(
             image,
             filter
         )
     }
 
+    val bitmap = remember(
+        state.resultadoImagen,
+        image
+    ) {
+
+        state.resultadoImagen?.let {
+
+            ImageUtils.cargarBitmap(it)
+
+        } ?: ImageUtils.cargarBitmap(image)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(gradient) // ✔ SOLO agregado aquí
+            .background(gradient)
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+
+        horizontalAlignment =
+            Alignment.CenterHorizontally
     ) {
 
         Text(
@@ -135,15 +148,109 @@ fun ResultScreen(
                     contentDescription = "Resultado",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(400.dp)
+                        .height(350.dp)
+                )
+
+                Spacer(
+                    modifier = Modifier.height(20.dp)
+                )
+
+                Text(
+                    text = "Filtro aplicado: $filter",
+                    style = MaterialTheme.typography.bodyLarge
                 )
 
                 Spacer(
                     modifier = Modifier.height(16.dp)
                 )
 
+                OutlinedTextField(
+                    value = leyenda,
+                    onValueChange = {
+                        leyenda = it
+                    },
+
+                    modifier = Modifier.fillMaxWidth(),
+
+                    label = {
+                        Text("Leyenda")
+                    },
+
+                    placeholder = {
+                        Text(
+                            "Describe tu transformación..."
+                        )
+                    },
+
+                    singleLine = false,
+
+                    minLines = 3
+                )
+
+                Spacer(
+                    modifier = Modifier.height(20.dp)
+                )
+
                 Button(
+                    modifier = Modifier.fillMaxWidth(),
+
+                    enabled =
+                        state.resultadoImagen != null,
+
                     onClick = {
+
+                        val rutaResultado =
+                            state.resultadoImagen
+                                ?: return@Button
+
+                        viewModel.guardarTransformacion(
+
+                            filtro = filter,
+
+                            rutaImagen = rutaResultado,
+
+                            usuarioId =
+                                usuario?.id ?: 0,
+
+                            leyenda = leyenda
+                        )
+
+                        navController.navigate(
+                            Routes.HISTORY
+                        )
+                    }
+                ) {
+                    Text("Guardar transformación")
+                }
+
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+
+                OutlinedButton(
+                    modifier = Modifier.fillMaxWidth(),
+
+                    onClick = {
+
+                        navController.navigate(
+                            Routes.HOME
+                        ) {
+                            popUpTo(Routes.HOME)
+                        }
+                    }
+                ) {
+                    Text("Descartar")
+                }
+
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+
+                OutlinedButton(
+                    modifier = Modifier.fillMaxWidth(),
+
+                    onClick = {
+
                         navController.navigate(
                             Routes.HISTORY
                         )

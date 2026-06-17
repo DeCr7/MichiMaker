@@ -1,6 +1,7 @@
 package ni.edu.uam.michimaker.api
 
 import ni.edu.uam.michimaker.dto.TransformacionDto
+import ni.edu.uam.michimaker.dto.TransformacionFeedDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -17,6 +18,9 @@ interface TransformacionApi {
     @GET("transformaciones")
     suspend fun obtenerTransformaciones():
             Response<List<TransformacionDto>>
+
+    @GET("transformaciones/feed")
+    suspend fun obtenerFeed(): Response<List<TransformacionFeedDto>>
 
     @GET("transformaciones/usuario/{id}")
     suspend fun obtenerPorUsuario(

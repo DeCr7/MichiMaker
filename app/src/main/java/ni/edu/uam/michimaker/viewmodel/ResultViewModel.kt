@@ -15,6 +15,7 @@ import ni.edu.uam.michimaker.repository.TransformacionRepository
 import ni.edu.uam.michimaker.storage.ImageStorageManager
 import ni.edu.uam.michimaker.utils.DateUtils
 import ni.edu.uam.michimaker.utils.ResultState
+import ni.edu.uam.michimaker.utils.SessionManager
 
 class ResultViewModel(
     application: Application
@@ -24,8 +25,11 @@ class ResultViewModel(
 
     private val filterManager: CatFilterManager
 
-    private val _state = MutableStateFlow(ResultState())
-    val state = _state.asStateFlow()
+    private val _state =
+        MutableStateFlow(ResultState())
+
+    val state =
+        _state.asStateFlow()
 
     init {
 
@@ -67,14 +71,6 @@ class ResultViewModel(
                         filtro = filtro
                     )
 
-                repository.guardar(
-                    TransformacionEntity(
-                        nombreFiltro = filtro,
-                        fecha = DateUtils.fechaActual(),
-                        rutaImagen = resultado
-                    )
-                )
-
                 _state.value =
                     _state.value.copy(
                         loading = false,
@@ -88,6 +84,34 @@ class ResultViewModel(
                         loading = false,
                         error = e.message
                     )
+            }
+        }
+    }
+
+    fun guardarTransformacion(
+        filtro: String,
+        rutaImagen: String,
+        usuarioId: Int,
+        leyenda: String
+    ) {
+
+        viewModelScope.launch {
+
+            try {
+
+                repository.guardar(
+                    TransformacionEntity(
+                        nombreFiltro = filtro,
+                        fecha = DateUtils.fechaActual(),
+                        rutaImagen = rutaImagen,
+                        usuarioId = usuarioId,
+                        leyenda = leyenda
+                    )
+                )
+
+            } catch (e: Exception) {
+
+                e.printStackTrace()
             }
         }
     }

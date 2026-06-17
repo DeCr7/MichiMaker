@@ -11,12 +11,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import ni.edu.uam.michimaker.database.AppDatabaseProvider
 import ni.edu.uam.michimaker.navigation.Routes
 import ni.edu.uam.michimaker.repository.TransformacionRepository
+import ni.edu.uam.michimaker.utils.SessionManager
 import ni.edu.uam.michimaker.utils.TransformacionItem
 import ni.edu.uam.michimaker.viewmodel.TransformacionViewModel
+import ni.edu.uam.michimaker.viewmodel.TransformacionViewModelFactory
 
 @Composable
 fun HistoryScreen(
@@ -25,15 +28,33 @@ fun HistoryScreen(
 
     val gradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFFFC1CC), // rosa suave
-            Color(0xFFD7B3FF), // lila
-            Color(0xFFFFD6A5)  // naranja pastel
+            Color(0xFFFFC1CC),
+            Color(0xFFD7B3FF),
+            Color(0xFFFFD6A5)
         )
     )
 
     val context = LocalContext.current
 
+    val usuario =
+        SessionManager.obtenerUsuario()
+
+    if (usuario == null) {
+
+        LaunchedEffect(Unit) {
+
+            navController.navigate(
+                Routes.LOGIN
+            ) {
+                popUpTo(0)
+            }
+        }
+
+        return
+    }
+
     val repository = remember {
+
         TransformacionRepository(
             AppDatabaseProvider
                 .obtener(context)
@@ -41,21 +62,26 @@ fun HistoryScreen(
         )
     }
 
-    val viewModel = remember {
-        TransformacionViewModel(repository)
-    }
+    val viewModel: TransformacionViewModel =
+        viewModel(
+            factory =
+                TransformacionViewModelFactory(
+                    repository = repository,
+                    usuarioId = usuario.id ?: 0
+                )
+        )
 
     val state by viewModel.uiState.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(gradient) // ✔ SOLO agregado aquí
+            .background(gradient)
             .padding(16.dp)
     ) {
 
         Text(
-            text = "Historial",
+            text = "Historial de ${usuario.username}",
             style = MaterialTheme.typography.titleLarge
         )
 
@@ -63,10 +89,21 @@ fun HistoryScreen(
             modifier = Modifier.height(12.dp)
         )
 
+        Text(
+            text = "Transformaciones guardadas únicamente para esta cuenta",
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
         Button(
             onClick = {
-                navController.navigate(Routes.HOME) {
-                    popUpTo(Routes.HOME)
+                navController.navigate(
+                    Routes.HOME
+                ) {
+                    launchSingleTop = true
                 }
             }
         ) {
@@ -99,18 +136,6 @@ fun HistoryScreen(
                     text = "Error: ${state.error}",
                     color = MaterialTheme.colorScheme.error
                 )
-
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
-
-                OutlinedButton(
-                    onClick = {
-                        navController.navigate(Routes.HOME)
-                    }
-                ) {
-                    Text("Volver")
-                }
             }
 
             state.transformaciones.isEmpty() -> {
@@ -125,7 +150,9 @@ fun HistoryScreen(
 
                 OutlinedButton(
                     onClick = {
-                        navController.navigate(Routes.CAMERA)
+                        navController.navigate(
+                            Routes.CAMERA
+                        )
                     }
                 ) {
                     Text("Crear una transformación")
@@ -144,12 +171,55 @@ fun HistoryScreen(
                         key = { it.id }
                     ) { item ->
 
-                        TransformacionItem(
-                            item = item,
-                            onDelete = {
-                                viewModel.eliminar(item)
+                        Card(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            Column(
+                                modifier = Modifier.padding(12.dp)
+                            ) {
+
+                                TransformacionItem(
+                                    item = item,
+                                    onDelete = {
+                                        viewModel.eliminar(item)
+                                    }
+                                )
+
+                                if (
+                                    item.leyenda.isNotBlank()
+                                ) {
+
+                                    Spacer(
+                                        modifier =
+                                            Modifier.height(8.dp)
+                                    )
+
+                                    HorizontalDivider()
+
+                                    Spacer(
+                                        modifier =
+                                            Modifier.height(8.dp)
+                                    )
+
+                                    Text(
+                                        text = "Leyenda",
+                                        style =
+                                            MaterialTheme
+                                                .typography
+                                                .labelLarge
+                                    )
+
+                                    Text(
+                                        text = item.leyenda,
+                                        style =
+                                            MaterialTheme
+                                                .typography
+                                                .bodyMedium
+                                    )
+                                }
                             }
-                        )
+                        }
                     }
                 }
             }

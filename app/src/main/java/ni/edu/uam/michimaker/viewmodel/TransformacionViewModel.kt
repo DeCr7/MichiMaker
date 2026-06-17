@@ -9,13 +9,18 @@ import ni.edu.uam.michimaker.repository.TransformacionRepository
 import ni.edu.uam.michimaker.utils.TransformacionUiState
 
 class TransformacionViewModel(
-    private val repository: TransformacionRepository
+    private val repository: TransformacionRepository,
+    private val usuarioId: Int
 ) : ViewModel() {
 
     val uiState: StateFlow<TransformacionUiState> =
         combine(
-            repository.obtenerTodas(),
-            repository.contar()
+            repository.obtenerPorUsuario(
+                usuarioId
+            ),
+            repository.contarPorUsuario(
+                usuarioId
+            )
         ) { transformaciones, total ->
 
             TransformacionUiState(

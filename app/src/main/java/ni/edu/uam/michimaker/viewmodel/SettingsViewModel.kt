@@ -10,10 +10,18 @@ class SettingsViewModel(
     private val repository: TransformacionRepository
 ) : ViewModel() {
 
-    fun limpiarHistorial(onDone: () -> Unit) {
+    fun limpiarHistorialUsuario(
+        usuarioId: Int,
+        onSuccess: () -> Unit
+    ) {
+
         viewModelScope.launch {
-            repository.limpiarTodo()
-            onDone()
+
+            repository.limpiarPorUsuario(
+                usuarioId
+            )
+
+            onSuccess()
         }
     }
 }

@@ -13,13 +13,14 @@ fun TransformacionEntity.toModel(): Transformacion {
     )
 }
 
-fun Transformacion.toEntity():
-        TransformacionEntity {
+fun Transformacion.toEntity(): TransformacionEntity {
 
     return TransformacionEntity(
         id = id,
         nombreFiltro = filtro,
         fecha = fecha,
-        rutaImagen = rutaImagen
+        rutaImagen = rutaImagen,
+        usuarioId = 0,
+        leyenda = ""
     )
 }

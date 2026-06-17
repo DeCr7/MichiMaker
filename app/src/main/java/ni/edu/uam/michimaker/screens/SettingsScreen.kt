@@ -13,24 +13,42 @@ import androidx.navigation.NavController
 import ni.edu.uam.michimaker.database.AppDatabaseProvider
 import ni.edu.uam.michimaker.navigation.Routes
 import ni.edu.uam.michimaker.repository.TransformacionRepository
+import ni.edu.uam.michimaker.utils.SessionManager
 import ni.edu.uam.michimaker.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
     navController: NavController
 ) {
-
     val gradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFD7CCC8), // beige
-            Color(0xFFBCAAA4), // marrón claro
-            Color(0xFFEFEBE9) // blanco cálido
+            Color(0xFFD7CCC8),
+            Color(0xFFBCAAA4),
+            Color(0xFFEFEBE9)
         )
     )
+
+    val usuario =
+        SessionManager.obtenerUsuario()
+
+    if (usuario == null) {
+
+        LaunchedEffect(Unit) {
+
+            navController.navigate(
+                Routes.LOGIN
+            ) {
+                popUpTo(0)
+            }
+        }
+
+        return
+    }
 
     val context = LocalContext.current
 
     val repository = remember {
+
         TransformacionRepository(
             AppDatabaseProvider
                 .obtener(context)
@@ -39,13 +57,16 @@ fun SettingsScreen(
     }
 
     val viewModel = remember {
-        SettingsViewModel(repository)
+
+        SettingsViewModel(
+            repository
+        )
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(gradient) // ✔ SOLO agregado aquí
+            .background(gradient)
             .padding(16.dp)
     ) {
 
@@ -54,7 +75,17 @@ fun SettingsScreen(
             style = MaterialTheme.typography.titleLarge
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+
+        Text(
+            text = "Usuario: ${usuario.username}"
+        )
+
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
         Card(
             modifier = Modifier.fillMaxWidth()
@@ -66,27 +97,40 @@ fun SettingsScreen(
 
                 Text("Historial")
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
 
                 Button(
                     onClick = {
-                        viewModel.limpiarHistorial {
 
-                            navController.navigate(
-                                Routes.HOME
+                        viewModel
+                            .limpiarHistorialUsuario(
+                                usuario.id ?: 0
                             ) {
-                                launchSingleTop = true
-                                popUpTo(Routes.HOME)
+
+                                navController.navigate(
+                                    Routes.HOME
+                                ) {
+                                    launchSingleTop = true
+                                    popUpTo(
+                                        Routes.HOME
+                                    )
+                                }
                             }
-                        }
                     }
                 ) {
-                    Text("Limpiar historial")
+
+                    Text(
+                        "Limpiar mi historial"
+                    )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
         Card(
             modifier = Modifier.fillMaxWidth()
@@ -102,19 +146,51 @@ fun SettingsScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
         Button(
             onClick = {
+
                 navController.navigate(
                     Routes.HOME
                 ) {
                     launchSingleTop = true
-                    popUpTo(Routes.HOME)
+                    popUpTo(
+                        Routes.HOME
+                    )
                 }
             }
         ) {
-            Text("Volver al inicio")
+
+            Text(
+                "Volver al inicio"
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        OutlinedButton(
+            onClick = {
+
+                SessionManager.logout()
+
+                navController.navigate(
+                    Routes.LOGIN
+                ) {
+
+                    popUpTo(0)
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Text(
+                "Cerrar sesión"
+            )
         }
     }
 }

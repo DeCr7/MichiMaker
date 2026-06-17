@@ -5,7 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import ni.edu.uam.michimaker.repository.TransformacionRepository
 
 class TransformacionViewModelFactory(
-    private val repository: TransformacionRepository
+    private val repository: TransformacionRepository,
+    private val usuarioId: Int
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(
@@ -13,7 +14,8 @@ class TransformacionViewModelFactory(
     ): T {
 
         return TransformacionViewModel(
-            repository
+            repository,
+            usuarioId
         ) as T
     }
 }

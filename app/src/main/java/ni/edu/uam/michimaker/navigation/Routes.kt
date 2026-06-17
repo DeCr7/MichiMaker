@@ -2,14 +2,38 @@ package ni.edu.uam.michimaker.navigation
 
 object Routes {
 
-    const val HOME = "home"
-    const val CAMERA = "camera"
+    // =====================
+    // AUTH
+    // =====================
 
-    const val FILTER = "filter/{image}"
+    const val LOGIN =
+        "login"
 
-    const val RESULT = "result/{image}/{filter}"
+    const val REGISTER =
+        "register"
 
-    const val HISTORY = "history"
-    const val STATS = "stats"
-    const val SETTINGS = "settings"
+    // =====================
+    // APP
+    // =====================
+
+    const val HOME =
+        "home"
+
+    const val CAMERA =
+        "camera"
+
+    const val FILTER =
+        "filter/{image}"
+
+    const val RESULT =
+        "result/{image}/{filter}"
+
+    const val HISTORY =
+        "history"
+
+    const val STATS =
+        "stats"
+
+    const val SETTINGS =
+        "settings"
 }

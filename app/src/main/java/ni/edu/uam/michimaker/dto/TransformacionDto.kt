@@ -5,5 +5,7 @@ data class TransformacionDto(
     val nombreFiltro: String,
     val fecha: String,
     val rutaImagen: String,
-    val usuarioId: Int? = null
+    val usuarioId: Int? = null,
+
+    val leyenda: String? = null
 )
