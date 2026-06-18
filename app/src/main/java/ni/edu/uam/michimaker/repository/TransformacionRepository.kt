@@ -97,13 +97,37 @@ class TransformacionRepository(
         return dao.contarTransformaciones()
     }
 
-    fun obtenerPorUsuario(
+    suspend fun obtenerPorUsuario(
         usuarioId: Int
-    ): Flow<List<TransformacionEntity>> {
+    ): List<TransformacionDto> {
 
-        return dao.obtenerPorUsuario(
-            usuarioId
-        )
+        return try {
+
+            val response =
+                ApiClient.api.obtenerPorUsuario(
+                    usuarioId
+                )
+
+            if (response.isSuccessful) {
+
+                response.body()
+                    ?: emptyList()
+
+            } else {
+
+                emptyList()
+            }
+
+        } catch (e: Exception) {
+
+            Log.e(
+                "API_ERROR",
+                "Error obteniendo historial",
+                e
+            )
+
+            emptyList()
+        }
     }
 
     fun contarPorUsuario(
