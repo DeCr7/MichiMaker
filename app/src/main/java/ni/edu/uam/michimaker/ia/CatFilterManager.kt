@@ -41,6 +41,9 @@ class CatFilterManager(
 
         val bitmapOriginal =
             ImageUtils.cargarBitmap(rutaImagen)
+                ?: throw Exception(
+                    "No se pudo cargar la imagen"
+                )
 
         val inputImage =
             InputImage.fromFilePath(
@@ -49,6 +52,8 @@ class CatFilterManager(
                     File(rutaImagen)
                 )
             )
+
+        var resultado = bitmapOriginal
 
         val faces =
             detectarRostrosSuspend(
@@ -97,9 +102,6 @@ class CatFilterManager(
                     filtroSeleccionado.noseRes
                 )
             }
-
-        var resultado =
-            bitmapOriginal
 
         val cara =
             rostro.boundingBox

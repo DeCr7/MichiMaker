@@ -9,7 +9,7 @@ object ImageUtils {
 
     fun cargarBitmap(
         ruta: String
-    ): Bitmap {
+    ): Bitmap? {
 
         return BitmapFactory.decodeFile(ruta)
     }

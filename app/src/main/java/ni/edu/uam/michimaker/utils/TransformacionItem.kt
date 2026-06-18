@@ -12,45 +12,39 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import ni.edu.uam.michimaker.dto.TransformacionDto
 
 @Composable
 fun TransformacionItem(
-    item: ni.edu.uam.michimaker.database.TransformacionEntity,
-    onDelete: () -> Unit
+    item: TransformacionDto
 ) {
-
     val bitmap = remember(item.rutaImagen) {
-        ImageUtils.cargarBitmap(item.rutaImagen)
+
+        item.rutaImagen?.let {
+            ImageUtils.cargarBitmap(it)
+        }
     }
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
+    Column {
 
-        Column(
-            modifier = Modifier.padding(12.dp)
-        ) {
+        bitmap?.let {
 
             Image(
-                bitmap = bitmap.asImageBitmap(),
+                bitmap = it.asImageBitmap(),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(180.dp)
             )
+        }
 
-            Spacer(modifier = Modifier.height(8.dp))
+        Text("Filtro: ${item.nombreFiltro}")
+        Text("Fecha: ${item.fecha}")
 
-            Text(text = "Filtro: ${item.nombreFiltro}")
-            Text(text = "Fecha: ${item.fecha}")
+        item.leyenda?.let { leyenda ->
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                onClick = onDelete
-            ) {
-                Text("Eliminar")
+            if (leyenda.isNotBlank()) {
+                Text("Leyenda: $leyenda")
             }
         }
     }
