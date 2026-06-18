@@ -99,4 +99,15 @@ public class TransformacionController {
                         .toList()
         );
     }
+
+    @DeleteMapping("/usuario/{id}")
+    public ResponseEntity<Void> eliminarPorUsuario(
+            @PathVariable Integer id
+    ) {
+
+        transformacionRepository
+                .deleteByUsuarioId(id);
+
+        return ResponseEntity.ok().build();
+    }
 }

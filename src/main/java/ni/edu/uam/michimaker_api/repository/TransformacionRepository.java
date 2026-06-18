@@ -13,6 +13,8 @@ public interface TransformacionRepository
 
     List<Transformacion> findByUsuarioIdOrderByIdDesc(Integer usuarioId);
 
+    void deleteByUsuarioId(Integer usuarioId);
+
     @Query(value = "SELECT * FROM transformaciones ORDER BY RANDOM() LIMIT 50", nativeQuery = true)
     List<Transformacion> feedAleatorio();
 }
