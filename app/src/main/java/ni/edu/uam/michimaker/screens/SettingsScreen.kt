@@ -48,12 +48,7 @@ fun SettingsScreen(
     val context = LocalContext.current
 
     val repository = remember {
-
-        TransformacionRepository(
-            AppDatabaseProvider
-                .obtener(context)
-                .transformacionDao()
-        )
+        TransformacionRepository()
     }
 
     val viewModel = remember {

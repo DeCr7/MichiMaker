@@ -4,6 +4,7 @@ import ni.edu.uam.michimaker.dto.TransformacionDto
 import ni.edu.uam.michimaker.dto.TransformacionFeedDto
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -26,4 +27,9 @@ interface TransformacionApi {
     suspend fun obtenerPorUsuario(
         @Path("id") usuarioId: Int
     ): Response<List<TransformacionDto>>
+
+    @DELETE("transformaciones/usuario/{id}")
+    suspend fun eliminarPorUsuario(
+        @Path("id") usuarioId: Int
+    ): Response<Void>
 }

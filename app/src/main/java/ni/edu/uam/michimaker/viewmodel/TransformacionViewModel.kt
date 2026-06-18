@@ -4,70 +4,90 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ni.edu.uam.michimaker.database.TransformacionEntity
+import ni.edu.uam.michimaker.dto.TransformacionDto
 import ni.edu.uam.michimaker.repository.TransformacionRepository
 import ni.edu.uam.michimaker.utils.TransformacionUiState
+
 
 class TransformacionViewModel(
     private val repository: TransformacionRepository,
     private val usuarioId: Int
 ) : ViewModel() {
 
-    val uiState: StateFlow<TransformacionUiState> =
-        combine(
-            repository.obtenerPorUsuario(
-                usuarioId
-            ),
-            repository.contarPorUsuario(
-                usuarioId
-            )
-        ) { transformaciones, total ->
 
+    private val _uiState =
+        MutableStateFlow(
             TransformacionUiState(
-                cargando = false,
-                transformaciones = transformaciones,
-                total = total,
-                error = null
-            )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = TransformacionUiState(
                 cargando = true
             )
         )
 
-    fun guardar(
-        transformacion: TransformacionEntity
-    ) {
+    val uiState: StateFlow<TransformacionUiState> =
+        _uiState
+
+
+    init {
+        cargarHistorial()
+    }
+
+
+    private fun cargarHistorial() {
+
         viewModelScope.launch {
+
             try {
 
-                repository.guardar(
-                    transformacion
-                )
+                val transformaciones =
+                    repository.obtenerPorUsuario(
+                        usuarioId
+                    )
+
+
+                _uiState.value =
+                    TransformacionUiState(
+
+                        cargando = false,
+
+                        transformaciones =
+                            transformaciones,
+
+                        total =
+                            transformaciones.size
+                    )
+
 
             } catch (e: Exception) {
 
-                e.printStackTrace()
+                _uiState.value =
+                    TransformacionUiState(
+
+                        cargando = false,
+
+                        error = e.message
+                    )
             }
         }
     }
 
-    fun eliminar(
-        transformacion: TransformacionEntity
+
+    fun guardar(
+        transformacion: TransformacionDto
     ) {
+
         viewModelScope.launch {
-            try {
 
-                repository.eliminar(
-                    transformacion
-                )
+            repository.guardar(
+                transformacion
+            )
 
-            } catch (e: Exception) {
-
-                e.printStackTrace()
-            }
+            cargarHistorial()
         }
+    }
+
+
+    fun recargar() {
+
+        cargarHistorial()
+
     }
 }

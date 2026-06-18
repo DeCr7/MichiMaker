@@ -6,8 +6,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ni.edu.uam.michimaker.database.AppDatabaseProvider
-import ni.edu.uam.michimaker.database.TransformacionEntity
+import ni.edu.uam.michimaker.dto.TransformacionDto
 import ni.edu.uam.michimaker.ia.CatFilterManager
 import ni.edu.uam.michimaker.ia.FaceDetectorManager
 import ni.edu.uam.michimaker.ia.OverlayManager
@@ -15,31 +14,30 @@ import ni.edu.uam.michimaker.repository.TransformacionRepository
 import ni.edu.uam.michimaker.storage.ImageStorageManager
 import ni.edu.uam.michimaker.utils.DateUtils
 import ni.edu.uam.michimaker.utils.ResultState
-import ni.edu.uam.michimaker.utils.SessionManager
+
 
 class ResultViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val repository: TransformacionRepository
+
+    private val repository =
+        TransformacionRepository()
+
 
     private val filterManager: CatFilterManager
+
 
     private val _state =
         MutableStateFlow(ResultState())
 
+
     val state =
         _state.asStateFlow()
 
+
+
     init {
-
-        val database =
-            AppDatabaseProvider.obtener(application)
-
-        repository =
-            TransformacionRepository(
-                database.transformacionDao()
-            )
 
         filterManager =
             CatFilterManager(
@@ -49,6 +47,8 @@ class ResultViewModel(
                 storageManager = ImageStorageManager(application)
             )
     }
+
+
 
     fun procesarImagen(
         ruta: String,
@@ -65,17 +65,20 @@ class ResultViewModel(
                         error = null
                     )
 
+
                 val resultado =
                     filterManager.aplicarFiltroSuspend(
                         rutaImagen = ruta,
                         filtro = filtro
                     )
 
+
                 _state.value =
                     _state.value.copy(
                         loading = false,
                         resultadoImagen = resultado
                     )
+
 
             } catch (e: Exception) {
 
@@ -88,6 +91,8 @@ class ResultViewModel(
         }
     }
 
+
+
     fun guardarTransformacion(
         filtro: String,
         rutaImagen: String,
@@ -95,19 +100,35 @@ class ResultViewModel(
         leyenda: String
     ) {
 
+
         viewModelScope.launch {
+
 
             try {
 
-                repository.guardar(
-                    TransformacionEntity(
+
+                val transformacion =
+                    TransformacionDto(
+
+                        id = null,
+
                         nombreFiltro = filtro,
-                        fecha = DateUtils.fechaActual(),
+
+                        fecha =
+                            DateUtils.fechaActual(),
+
                         rutaImagen = rutaImagen,
+
                         usuarioId = usuarioId,
+
                         leyenda = leyenda
                     )
+
+
+                repository.guardar(
+                    transformacion
                 )
+
 
             } catch (e: Exception) {
 

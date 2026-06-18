@@ -2,32 +2,78 @@ package ni.edu.uam.michimaker.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import ni.edu.uam.michimaker.repository.TransformacionRepository
+
 
 class StatsViewModel(
     private val repository: TransformacionRepository
 ) : ViewModel() {
 
-    val uiState = repository.obtenerTodas()
-        .map { lista ->
 
-            val total = lista.size
-
-            val porFiltro = lista.groupingBy {
-                it.nombreFiltro
-            }.eachCount()
-
-            StatsState(
-                total = total,
-                porFiltro = porFiltro
-            )
-        }
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
+    private val _uiState =
+        MutableStateFlow(
             StatsState()
         )
+
+    val uiState: StateFlow<StatsState> =
+        _uiState
+
+
+    init {
+
+        cargarEstadisticas()
+
+    }
+
+
+    private fun cargarEstadisticas() {
+
+        viewModelScope.launch {
+
+            try {
+
+                val lista =
+                    repository.obtenerFeed()
+
+
+                val total =
+                    lista.size
+
+
+                val porFiltro =
+                    lista.groupingBy {
+
+                        it.nombreFiltro
+
+                    }.eachCount()
+
+
+                _uiState.value =
+                    StatsState(
+
+                        total = total,
+
+                        porFiltro = porFiltro
+                    )
+
+
+            } catch (e: Exception) {
+
+                e.printStackTrace()
+
+                _uiState.value =
+                    StatsState()
+            }
+        }
+    }
+
+
+    fun recargar() {
+
+        cargarEstadisticas()
+
+    }
 }
