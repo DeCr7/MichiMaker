@@ -34,8 +34,11 @@ fun ResultScreen(
         )
     )
 
-    val usuario =
-        SessionManager.obtenerUsuario()
+    val usuario by remember {
+        mutableStateOf(
+            SessionManager.obtenerUsuario()
+        )
+    }
 
     var leyenda by remember {
         mutableStateOf("")
@@ -238,21 +241,29 @@ fun ResultScreen(
                             state.resultadoImagen
                                 ?: return@Button
 
+                        android.util.Log.d(
+                            "RESULT",
+                            "Usuario actual: $usuario"
+                        )
+
+                        android.util.Log.d(
+                            "RESULT",
+                            "Usuario ID enviado: ${usuario?.id ?: 0}"
+                        )
+
                         viewModel.guardarTransformacion(
 
                             filtro = filter,
-
                             rutaImagen = rutaResultado,
-
-                            usuarioId =
-                                usuario?.id ?: 0,
-
+                            usuarioId = usuario?.id ?: 0,
                             leyenda = leyenda
-                        )
 
-                        navController.navigate(
-                            Routes.HISTORY
-                        )
+                        ) {
+
+                            navController.navigate(
+                                Routes.HISTORY
+                            )
+                        }
                     }
                 ) {
                     Text("Guardar Transformación")
@@ -298,7 +309,7 @@ fun ResultScreen(
             else -> {
 
                 Text(
-                    text = "No se pudo cargar la imagen."
+                    text = "No se pudo cargar la imagen"
                 )
 
                 Spacer(

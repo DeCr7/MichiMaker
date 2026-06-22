@@ -16,19 +16,25 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import ni.edu.uam.michimaker.navigation.Routes
 import ni.edu.uam.michimaker.repository.TransformacionRepository
-import ni.edu.uam.michimaker.utils.ImageUtils
 import ni.edu.uam.michimaker.utils.SessionManager
 import ni.edu.uam.michimaker.viewmodel.TransformacionViewModel
 import ni.edu.uam.michimaker.viewmodel.TransformacionViewModelFactory
+
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
 
+
 private fun bitmapDesdeBase64(
-    base64: String
+    base64: String?
 ): Bitmap? {
 
     return try {
+
+        if(base64.isNullOrBlank()) {
+            return null
+        }
+
 
         val bytes =
             Base64.decode(
@@ -36,34 +42,42 @@ private fun bitmapDesdeBase64(
                 Base64.DEFAULT
             )
 
+
         BitmapFactory.decodeByteArray(
             bytes,
             0,
             bytes.size
         )
 
-    } catch (e: Exception) {
+    } catch(e: Exception) {
 
         null
     }
 }
+
+
 
 @Composable
 fun HistoryScreen(
     navController: NavController
 ) {
 
-    val gradient = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFFFFC1CC),
-            Color(0xFFD7B3FF),
-            Color(0xFFFFD6A5)
+
+    val gradient =
+        Brush.verticalGradient(
+            colors = listOf(
+                Color(0xFFFFC1CC),
+                Color(0xFFD7B3FF),
+                Color(0xFFFFD6A5)
+            )
         )
-    )
 
-    val usuario = SessionManager.obtenerUsuario()
 
-    if (usuario == null) {
+    val usuario =
+        SessionManager.obtenerUsuario()
+
+
+    if(usuario == null) {
 
         LaunchedEffect(Unit) {
 
@@ -77,9 +91,12 @@ fun HistoryScreen(
         return
     }
 
-    val repository = remember {
-        TransformacionRepository()
-    }
+
+    val repository =
+        remember {
+            TransformacionRepository()
+        }
+
 
     val viewModel: TransformacionViewModel =
         viewModel(
@@ -90,35 +107,46 @@ fun HistoryScreen(
                 )
         )
 
+
     val state by viewModel.uiState.collectAsState()
 
+
+
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(gradient)
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(gradient)
+                .padding(16.dp)
     ) {
+
 
         Text(
             text = "Historial de ${usuario.username}",
-            style = MaterialTheme.typography.titleLarge
+            style =
+                MaterialTheme.typography.titleLarge
         )
 
+
         Spacer(
-            modifier = Modifier.height(12.dp)
+            Modifier.height(12.dp)
         )
+
 
         Text(
-            text = "Transformaciones guardadas en tu cuenta",
-            style = MaterialTheme.typography.bodyMedium
+            text =
+                "Transformaciones guardadas en tu cuenta"
         )
 
+
         Spacer(
-            modifier = Modifier.height(16.dp)
+            Modifier.height(16.dp)
         )
+
 
         Button(
             onClick = {
+
                 navController.navigate(
                     Routes.HOME
                 ) {
@@ -126,77 +154,109 @@ fun HistoryScreen(
                 }
             }
         ) {
+
             Text("Volver al inicio")
         }
 
+
+
         Spacer(
-            modifier = Modifier.height(16.dp)
+            Modifier.height(16.dp)
         )
+
 
         Text(
-            text = "Total de transformaciones: ${state.total}",
-            style = MaterialTheme.typography.bodyLarge
+            text =
+                "Total de transformaciones: ${state.total}"
         )
+
+
 
         Spacer(
-            modifier = Modifier.height(16.dp)
+            Modifier.height(16.dp)
         )
 
+
+
         when {
+
 
             state.cargando -> {
 
                 CircularProgressIndicator()
             }
 
+
+
             state.error != null -> {
 
                 Text(
-                    text = "Error: ${state.error}",
-                    color = MaterialTheme.colorScheme.error
+                    text =
+                        "Error: ${state.error}",
+                    color =
+                        MaterialTheme.colorScheme.error
                 )
             }
 
+
+
             state.transformaciones.isEmpty() -> {
 
+
                 Text(
-                    text = "No hay transformaciones registradas."
+                    "No hay transformaciones registradas."
                 )
 
+
                 Spacer(
-                    modifier = Modifier.height(12.dp)
+                    Modifier.height(12.dp)
                 )
+
 
                 Button(
                     onClick = {
+
                         navController.navigate(
                             Routes.CAMERA
                         )
                     }
                 ) {
+
                     Text("Crear una Transformación")
                 }
             }
 
+
+
             else -> {
+
 
                 LazyColumn(
                     verticalArrangement =
                         Arrangement.spacedBy(12.dp)
                 ) {
 
+
                     items(
-                        items = state.transformaciones,
-                        key = { it.id }
+                        items =
+                            state.transformaciones,
+                        key =
+                            { it.id }
                     ) { item ->
 
+
+
                         Card(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier =
+                                Modifier.fillMaxWidth()
                         ) {
 
+
                             Column(
-                                modifier = Modifier.padding(12.dp)
+                                Modifier.padding(12.dp)
                             ) {
+
+
 
                                 Text(
                                     text =
@@ -208,94 +268,97 @@ fun HistoryScreen(
                                             .titleMedium
                                 )
 
+
+
                                 Spacer(
-                                    modifier =
-                                        Modifier.height(6.dp)
+                                    Modifier.height(6.dp)
                                 )
+
+
 
                                 Text(
                                     text =
-                                        "Fecha: ${item.fecha}",
-
-                                    style =
-                                        MaterialTheme
-                                            .typography
-                                            .bodySmall
+                                        "Fecha: ${item.fecha}"
                                 )
+
+
 
                                 Spacer(
-                                    modifier =
-                                        Modifier.height(8.dp)
+                                    Modifier.height(8.dp)
                                 )
 
-                                val bitmap = remember(
-                                    item.imagenBase64,
-                                    item.rutaImagen
-                                ) {
 
-                                    when {
 
-                                        !item.imagenBase64.isNullOrBlank() -> {
+                                val bitmap =
+                                    remember(
+                                        item.id,
+                                        item.imagenBase64
+                                    ) {
 
-                                            bitmapDesdeBase64(
-                                                item.imagenBase64
-                                            )
-                                        }
 
-                                        !item.rutaImagen.isNullOrBlank() -> {
-
-                                            try {
-
-                                                ImageUtils.cargarBitmap(
-                                                    item.rutaImagen
-                                                )
-
-                                            } catch (e: Exception) {
-
-                                                null
-                                            }
-                                        }
-
-                                        else -> null
+                                        bitmapDesdeBase64(
+                                            item.imagenBase64
+                                        )
+                                        // Compatibilidad con registros viejos
+                                            ?: null
                                     }
-                                }
 
-                                if (bitmap != null) {
+
+
+                                if(bitmap != null) {
+
 
                                     Image(
-                                        bitmap = bitmap.asImageBitmap(),
-                                        contentDescription = "Transformación",
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(220.dp)
+                                        bitmap =
+                                            bitmap.asImageBitmap(),
+
+                                        contentDescription =
+                                            "Transformación",
+
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .height(220.dp)
                                     )
 
                                 } else {
 
+
                                     Text(
-                                        text = "No se pudo cargar la imagen",
-                                        color = MaterialTheme.colorScheme.error
+                                        text =
+                                            "No se pudo cargar la imagen",
+
+                                        color =
+                                            MaterialTheme
+                                                .colorScheme
+                                                .error
                                     )
                                 }
 
-                                if (
+
+
+
+                                if(
                                     !item.leyenda.isNullOrBlank()
                                 ) {
 
+
                                     Spacer(
-                                        modifier =
-                                            Modifier.height(8.dp)
+                                        Modifier.height(8.dp)
                                     )
+
 
                                     HorizontalDivider()
 
+
                                     Spacer(
-                                        modifier =
-                                            Modifier.height(8.dp)
+                                        Modifier.height(8.dp)
                                     )
 
+
                                     Text(
-                                        text = "Leyenda",
+                                        text =
+                                            "Leyenda",
 
                                         style =
                                             MaterialTheme
@@ -303,14 +366,10 @@ fun HistoryScreen(
                                                 .labelLarge
                                     )
 
+
                                     Text(
                                         text =
-                                            item.leyenda ?: "",
-
-                                        style =
-                                            MaterialTheme
-                                                .typography
-                                                .bodyMedium
+                                            item.leyenda ?: ""
                                     )
                                 }
                             }

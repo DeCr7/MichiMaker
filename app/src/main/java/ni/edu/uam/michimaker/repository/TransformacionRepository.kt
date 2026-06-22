@@ -18,11 +18,39 @@ class TransformacionRepository {
 
         return try {
 
+            Log.d(
+                "API_SEND",
+                transformacion.toString()
+            )
+
             val response =
                 ApiClient.api
                     .guardarTransformacion(
                         transformacion
                     )
+
+
+            val errorBody =
+                response.errorBody()?.string()
+
+
+            Log.d(
+                "API_CODE",
+                response.code().toString()
+            )
+
+
+            Log.d(
+                "API_BODY",
+                response.body().toString()
+            )
+
+
+            Log.d(
+                "API_ERROR_BODY",
+                errorBody ?: "Sin error"
+            )
+
 
             if (response.isSuccessful) {
 
@@ -35,11 +63,6 @@ class TransformacionRepository {
 
             } else {
 
-                Log.e(
-                    "API",
-                    "Error HTTP ${response.code()}"
-                )
-
                 false
             }
 
@@ -47,8 +70,8 @@ class TransformacionRepository {
         } catch (e: Exception) {
 
             Log.e(
-                "API_ERROR",
-                "Error guardando transformación",
+                "API_EXCEPTION",
+                "Excepción",
                 e
             )
 

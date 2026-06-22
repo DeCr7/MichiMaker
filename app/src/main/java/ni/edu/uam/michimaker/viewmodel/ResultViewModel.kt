@@ -1,6 +1,7 @@
 package ni.edu.uam.michimaker.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,8 +15,7 @@ import ni.edu.uam.michimaker.repository.TransformacionRepository
 import ni.edu.uam.michimaker.storage.ImageStorageManager
 import ni.edu.uam.michimaker.utils.DateUtils
 import ni.edu.uam.michimaker.utils.ResultState
-import android.util.Base64
-import java.io.File
+import ni.edu.uam.michimaker.utils.ImageUtils
 
 
 class ResultViewModel(
@@ -93,29 +93,26 @@ class ResultViewModel(
         }
     }
 
-    private fun convertirABase64(
-        rutaImagen: String
-    ): String {
 
-        val bytes =
-            File(rutaImagen).readBytes()
-
-        return Base64.encodeToString(
-            bytes,
-            Base64.DEFAULT
-        )
-    }
 
     fun guardarTransformacion(
         filtro: String,
         rutaImagen: String,
         usuarioId: Int,
-        leyenda: String
+        leyenda: String,
+        onSuccess: () -> Unit
     ) {
 
         viewModelScope.launch {
 
             try {
+
+                // Convertir imagen local a Base64
+                val base64 =
+                    ImageUtils.bitmapToBase64(
+                        rutaImagen
+                    )
+
 
                 val transformacion =
                     TransformacionDto(
@@ -127,28 +124,48 @@ class ResultViewModel(
                         fecha =
                             DateUtils.fechaActual(),
 
-                        rutaImagen =
-                            rutaImagen,
+                        // Puede quedar como referencia,
+                        // pero ya no dependemos de ella
+                        rutaImagen = rutaImagen,
 
-                        imagenBase64 =
-                            convertirABase64(
-                                rutaImagen
-                            ),
+
+                        imagenBase64 = base64,
+
 
                         usuarioId =
                             usuarioId,
+
 
                         leyenda =
                             leyenda
                     )
 
-                repository.guardar(
-                    transformacion
+
+                val resultado =
+                    repository.guardar(
+                        transformacion
+                    )
+
+
+                Log.d(
+                    "GUARDADO_RESULT",
+                    "Resultado: $resultado"
                 )
 
-            } catch (e: Exception) {
 
-                e.printStackTrace()
+                if(resultado) {
+
+                    onSuccess()
+                }
+
+
+            } catch(e: Exception) {
+
+                Log.e(
+                    "GUARDADO_ERROR",
+                    "Error guardando transformación",
+                    e
+                )
             }
         }
     }

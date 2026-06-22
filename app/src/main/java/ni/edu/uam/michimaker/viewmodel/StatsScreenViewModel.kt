@@ -7,11 +7,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ni.edu.uam.michimaker.repository.TransformacionRepository
 
-
-class StatsViewModel(
-    private val repository: TransformacionRepository
+class StatsScreenViewModel(
+    private val repository: TransformacionRepository,
+    private val usuarioId: Int
 ) : ViewModel() {
-
 
     private val _uiState =
         MutableStateFlow(
@@ -21,13 +20,9 @@ class StatsViewModel(
     val uiState: StateFlow<StatsState> =
         _uiState
 
-
     init {
-
         cargarEstadisticas()
-
     }
-
 
     private fun cargarEstadisticas() {
 
@@ -36,29 +31,23 @@ class StatsViewModel(
             try {
 
                 val lista =
-                    repository.obtenerFeed()
-
+                    repository.obtenerPorUsuario(
+                        usuarioId
+                    )
 
                 val total =
                     lista.size
 
-
                 val porFiltro =
                     lista.groupingBy {
-
                         it.nombreFiltro
-
                     }.eachCount()
-
 
                 _uiState.value =
                     StatsState(
-
                         total = total,
-
                         porFiltro = porFiltro
                     )
-
 
             } catch (e: Exception) {
 
@@ -70,10 +59,7 @@ class StatsViewModel(
         }
     }
 
-
     fun recargar() {
-
         cargarEstadisticas()
-
     }
 }
