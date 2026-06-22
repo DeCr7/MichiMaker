@@ -21,7 +21,7 @@ public class Transformacion {
     @Column(length = 1000)
     private String rutaImagen;
 
-    @Lob
+    @Basic(fetch = FetchType.LAZY)
     @Column(columnDefinition = "bytea")
     private byte[] imagen;
 
