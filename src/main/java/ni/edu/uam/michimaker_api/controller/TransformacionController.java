@@ -18,62 +18,147 @@ import java.util.List;
 @CrossOrigin("*")
 public class TransformacionController {
 
+
     private final TransformacionRepository transformacionRepository;
+
     private final UsuarioRepository usuarioRepository;
+
 
     public TransformacionController(
             TransformacionRepository transformacionRepository,
             UsuarioRepository usuarioRepository
     ) {
-        this.transformacionRepository = transformacionRepository;
-        this.usuarioRepository = usuarioRepository;
+
+        this.transformacionRepository =
+                transformacionRepository;
+
+        this.usuarioRepository =
+                usuarioRepository;
     }
+
+
 
     // =========================
     // CREATE
     // =========================
+
 
     @PostMapping
     public ResponseEntity<TransformacionFeedDto> guardar(
             @RequestBody TransformacionDto dto
     ) {
 
+
         System.out.println(
-                "USUARIO RECIBIDO: " + dto.getUsuarioId()
+                "USUARIO RECIBIDO: "
+                        + dto.getUsuarioId()
         );
 
 
-        Usuario usuario = usuarioRepository
-                .findById(dto.getUsuarioId())
-                .orElseThrow(
-                        () -> new RuntimeException(
-                                "Usuario no encontrado"
+        if(dto.getUsuarioId() == null){
+
+            throw new RuntimeException(
+                    "UsuarioId es obligatorio"
+            );
+        }
+
+
+
+        Usuario usuario =
+                usuarioRepository
+                        .findById(
+                                dto.getUsuarioId()
                         )
+                        .orElseThrow(
+                                () -> new RuntimeException(
+                                        "Usuario no encontrado"
+                                )
+                        );
+
+
+
+        Transformacion t =
+                new Transformacion();
+
+
+        t.setNombreFiltro(
+                dto.getNombreFiltro()
+        );
+
+
+        t.setFecha(
+                dto.getFecha()
+        );
+
+
+        t.setRutaImagen(
+                dto.getRutaImagen()
+        );
+
+
+        t.setLeyenda(
+                dto.getLeyenda()
+        );
+
+
+        t.setUsuario(
+                usuario
+        );
+
+
+
+        // =========================
+        // IMAGEN BASE64
+        // =========================
+
+        if(dto.getImagenBase64() != null
+                &&
+                !dto.getImagenBase64().isBlank()) {
+
+
+            try {
+
+
+                String base64 =
+                        limpiarBase64(
+                                dto.getImagenBase64()
+                        );
+
+
+
+                byte[] imagenBytes =
+                        Base64.getDecoder()
+                                .decode(base64);
+
+
+
+                t.setImagen(
+                        imagenBytes
                 );
 
 
-        Transformacion t = new Transformacion();
-
-        t.setNombreFiltro(dto.getNombreFiltro());
-        t.setFecha(dto.getFecha());
-        t.setRutaImagen(dto.getRutaImagen());
-        t.setLeyenda(dto.getLeyenda());
-        t.setUsuario(usuario);
+            } catch(Exception e){
 
 
-        if(dto.getImagenBase64() != null &&
-                !dto.getImagenBase64().isBlank()) {
+                System.out.println(
+                        "ERROR DECODIFICANDO IMAGEN"
+                );
 
-            byte[] bytes =
-                    Base64.getDecoder()
-                            .decode(dto.getImagenBase64());
 
-            t.setImagen(bytes);
+                e.printStackTrace();
+
+
+                throw new RuntimeException(
+                        "Imagen Base64 inválida"
+                );
+            }
         }
+
 
 
         Transformacion guardada =
                 transformacionRepository.save(t);
+
 
 
         return ResponseEntity.ok(
@@ -81,127 +166,210 @@ public class TransformacionController {
         );
     }
 
+
+
+
+
     // =========================
     // FEED GLOBAL
     // =========================
 
+
     @GetMapping("/feed")
     public ResponseEntity<List<TransformacionFeedDto>> feed() {
 
-        List<TransformacionFeedDto> feed =
+
+        return ResponseEntity.ok(
+
                 transformacionRepository
                         .findAllByOrderByIdDesc()
                         .stream()
                         .map(this::toFeedDto)
-                        .toList();
+                        .toList()
 
-        return ResponseEntity.ok(feed);
+        );
     }
 
+
+
+
+
     // =========================
-    // FEED POR USUARIO
+    // FEED USUARIO
     // =========================
+
 
     @GetMapping("/usuario/{id}")
-    public ResponseEntity<List<TransformacionFeedDto>> porUsuario(
+    public ResponseEntity<List<TransformacionFeedDto>> usuario(
+
             @PathVariable Integer id
+
     ) {
 
-        List<TransformacionFeedDto> lista =
+        return ResponseEntity.ok(
+
                 transformacionRepository
                         .findByUsuarioIdOrderByIdDesc(id)
                         .stream()
                         .map(this::toFeedDto)
-                        .toList();
+                        .toList()
 
-        return ResponseEntity.ok(lista);
+        );
     }
 
+
+
+
+
     // =========================
-    // FEED ALEATORIO
+    // RANDOM
     // =========================
+
 
     @GetMapping("/feed/random")
-    public ResponseEntity<List<TransformacionFeedDto>> feedRandom() {
+    public ResponseEntity<List<TransformacionFeedDto>> random() {
+
 
         return ResponseEntity.ok(
+
                 transformacionRepository
                         .feedAleatorio()
                         .stream()
                         .map(this::toFeedDto)
                         .toList()
+
         );
     }
 
+
+
+
+
     // =========================
-    // ELIMINAR
+    // DELETE
     // =========================
 
+
     @DeleteMapping("/usuario/{id}")
-    public ResponseEntity<Void> eliminarPorUsuario(
+    public ResponseEntity<Void> eliminar(
+
             @PathVariable Integer id
-    ) {
+
+    ){
 
         transformacionRepository
                 .deleteByUsuarioId(id);
 
+
         return ResponseEntity.ok().build();
     }
 
+
+
+
+
     // =========================
-    // MAPPER
+    // LIMPIAR BASE64
     // =========================
+
+
+    private String limpiarBase64(
+            String base64
+    ){
+
+        if(base64.contains(",")){
+
+            return base64.substring(
+                    base64.indexOf(",") + 1
+            );
+        }
+
+
+        return base64;
+    }
+
+
+
+
+
+    // =========================
+    // ENTITY -> DTO
+    // =========================
+
 
     private TransformacionFeedDto toFeedDto(
             Transformacion t
-    ) {
+    ){
+
 
         TransformacionFeedDto dto =
                 new TransformacionFeedDto();
+
+
 
         dto.setId(
                 t.getId()
         );
 
+
         dto.setNombreFiltro(
                 t.getNombreFiltro()
         );
+
 
         dto.setFecha(
                 t.getFecha()
         );
 
+
         dto.setRutaImagen(
                 t.getRutaImagen()
         );
+
 
         dto.setLeyenda(
                 t.getLeyenda()
         );
 
-        dto.setUsuarioId(
-                t.getUsuario().getId()
-        );
 
-        dto.setUsername(
-                t.getUsuario().getUsername()
-        );
 
-        dto.setFotoPerfil(
-                t.getUsuario().getFotoPerfil()
-        );
+        if(t.getUsuario()!=null){
 
-        // NUEVO:
-        if (t.getImagen() != null) {
+
+            dto.setUsuarioId(
+                    t.getUsuario().getId()
+            );
+
+
+            dto.setUsername(
+                    t.getUsuario().getUsername()
+            );
+
+
+            dto.setFotoPerfil(
+                    t.getUsuario().getFotoPerfil()
+            );
+        }
+
+
+
+
+        if(t.getImagen()!=null){
+
 
             dto.setImagenBase64(
+
                     Base64.getEncoder()
                             .encodeToString(
                                     t.getImagen()
                             )
+
             );
         }
 
+
+
         return dto;
     }
+
 }
