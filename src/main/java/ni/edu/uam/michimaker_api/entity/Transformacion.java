@@ -22,9 +22,9 @@ public class Transformacion {
     private String rutaImagen;
 
     @Lob
-    @Column(columnDefinition = "BYTEA")
+    @Column(columnDefinition = "bytea")
     private byte[] imagen;
-
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "usuario_id",
