@@ -14,6 +14,8 @@ import ni.edu.uam.michimaker.repository.TransformacionRepository
 import ni.edu.uam.michimaker.storage.ImageStorageManager
 import ni.edu.uam.michimaker.utils.DateUtils
 import ni.edu.uam.michimaker.utils.ResultState
+import android.util.Base64
+import java.io.File
 
 
 class ResultViewModel(
@@ -91,7 +93,18 @@ class ResultViewModel(
         }
     }
 
+    private fun convertirABase64(
+        rutaImagen: String
+    ): String {
 
+        val bytes =
+            File(rutaImagen).readBytes()
+
+        return Base64.encodeToString(
+            bytes,
+            Base64.DEFAULT
+        )
+    }
 
     fun guardarTransformacion(
         filtro: String,
@@ -100,12 +113,9 @@ class ResultViewModel(
         leyenda: String
     ) {
 
-
         viewModelScope.launch {
 
-
             try {
-
 
                 val transformacion =
                     TransformacionDto(
@@ -117,18 +127,24 @@ class ResultViewModel(
                         fecha =
                             DateUtils.fechaActual(),
 
-                        rutaImagen = rutaImagen,
+                        rutaImagen =
+                            rutaImagen,
 
-                        usuarioId = usuarioId,
+                        imagenBase64 =
+                            convertirABase64(
+                                rutaImagen
+                            ),
 
-                        leyenda = leyenda
+                        usuarioId =
+                            usuarioId,
+
+                        leyenda =
+                            leyenda
                     )
-
 
                 repository.guardar(
                     transformacion
                 )
-
 
             } catch (e: Exception) {
 

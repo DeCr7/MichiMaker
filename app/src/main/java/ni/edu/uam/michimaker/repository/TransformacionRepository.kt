@@ -100,10 +100,13 @@ class TransformacionRepository {
     // HISTORIAL POR USUARIO
     // =========================
 
+// =========================
+// HISTORIAL POR USUARIO
+// =========================
+
     suspend fun obtenerPorUsuario(
         usuarioId: Int
-    ): List<TransformacionDto> {
-
+    ): List<TransformacionFeedDto> {
 
         return try {
 
@@ -112,13 +115,17 @@ class TransformacionRepository {
                     usuarioId
                 )
 
-
-            if(response.isSuccessful){
+            if (response.isSuccessful) {
 
                 response.body()
                     ?: emptyList()
 
             } else {
+
+                Log.e(
+                    "API",
+                    "Error HTTP ${response.code()}"
+                )
 
                 emptyList()
             }

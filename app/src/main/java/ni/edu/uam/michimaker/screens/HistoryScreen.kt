@@ -20,6 +20,33 @@ import ni.edu.uam.michimaker.utils.ImageUtils
 import ni.edu.uam.michimaker.utils.SessionManager
 import ni.edu.uam.michimaker.viewmodel.TransformacionViewModel
 import ni.edu.uam.michimaker.viewmodel.TransformacionViewModelFactory
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
+
+private fun bitmapDesdeBase64(
+    base64: String
+): Bitmap? {
+
+    return try {
+
+        val bytes =
+            Base64.decode(
+                base64,
+                Base64.DEFAULT
+            )
+
+        BitmapFactory.decodeByteArray(
+            bytes,
+            0,
+            bytes.size
+        )
+
+    } catch (e: Exception) {
+
+        null
+    }
+}
 
 @Composable
 fun HistoryScreen(
@@ -160,7 +187,7 @@ fun HistoryScreen(
 
                     items(
                         items = state.transformaciones,
-                        key = { it.id ?: 0 }
+                        key = { it.id }
                     ) { item ->
 
                         Card(
@@ -173,8 +200,7 @@ fun HistoryScreen(
 
                                 Text(
                                     text =
-                                        item.nombreFiltro
-                                            ?: "Sin filtro",
+                                        item.nombreFiltro,
 
                                     style =
                                         MaterialTheme
@@ -189,7 +215,7 @@ fun HistoryScreen(
 
                                 Text(
                                     text =
-                                        "Fecha: ${item.fecha ?: ""}",
+                                        "Fecha: ${item.fecha}",
 
                                     style =
                                         MaterialTheme
@@ -202,17 +228,35 @@ fun HistoryScreen(
                                         Modifier.height(8.dp)
                                 )
 
-                                val bitmap = remember(item.rutaImagen) {
+                                val bitmap = remember(
+                                    item.imagenBase64,
+                                    item.rutaImagen
+                                ) {
 
-                                    try {
+                                    when {
 
-                                        item.rutaImagen?.let {
-                                            ImageUtils.cargarBitmap(it)
+                                        !item.imagenBase64.isNullOrBlank() -> {
+
+                                            bitmapDesdeBase64(
+                                                item.imagenBase64
+                                            )
                                         }
 
-                                    } catch (e: Exception) {
+                                        !item.rutaImagen.isNullOrBlank() -> {
 
-                                        null
+                                            try {
+
+                                                ImageUtils.cargarBitmap(
+                                                    item.rutaImagen
+                                                )
+
+                                            } catch (e: Exception) {
+
+                                                null
+                                            }
+                                        }
+
+                                        else -> null
                                     }
                                 }
 

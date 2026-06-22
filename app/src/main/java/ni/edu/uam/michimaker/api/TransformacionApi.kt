@@ -26,7 +26,7 @@ interface TransformacionApi {
     @GET("transformaciones/usuario/{id}")
     suspend fun obtenerPorUsuario(
         @Path("id") usuarioId: Int
-    ): Response<List<TransformacionDto>>
+    ): Response<List<TransformacionFeedDto>>
 
     @DELETE("transformaciones/usuario/{id}")
     suspend fun eliminarPorUsuario(

@@ -1,13 +1,13 @@
 package ni.edu.uam.michimaker.utils
 
-import ni.edu.uam.michimaker.dto.TransformacionDto
+import ni.edu.uam.michimaker.dto.TransformacionFeedDto
 
 data class TransformacionUiState(
 
     val cargando: Boolean = false,
 
     val transformaciones:
-    List<TransformacionDto> =
+    List<TransformacionFeedDto> =
         emptyList(),
 
     val total: Int = 0,
