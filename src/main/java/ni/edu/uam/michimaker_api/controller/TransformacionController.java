@@ -38,6 +38,10 @@ public class TransformacionController {
             @RequestBody TransformacionDto dto
     ) {
 
+        System.out.println(
+                "USUARIO RECIBIDO: " + dto.getUsuarioId()
+        );
+
         Usuario usuario = usuarioRepository
                 .findById(dto.getUsuarioId())
                 .orElseThrow(
