@@ -252,14 +252,19 @@ public class TransformacionController {
 
     @DeleteMapping("/usuario/{id}")
     public ResponseEntity<Void> eliminar(
-
             @PathVariable Integer id
-
     ){
+
+        System.out.println(
+                "ELIMINANDO HISTORIAL DE USUARIO: " + id
+        );
 
         transformacionRepository
                 .deleteByUsuarioId(id);
 
+        System.out.println(
+                "ELIMINACION COMPLETADA"
+        );
 
         return ResponseEntity.ok().build();
     }
