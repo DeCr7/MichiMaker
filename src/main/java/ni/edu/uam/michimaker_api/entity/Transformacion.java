@@ -24,7 +24,7 @@ public class Transformacion {
     @Lob
     @Column(columnDefinition = "bytea")
     private byte[] imagen;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "usuario_id",

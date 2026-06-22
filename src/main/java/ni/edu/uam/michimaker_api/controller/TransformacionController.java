@@ -34,13 +34,14 @@ public class TransformacionController {
     // =========================
 
     @PostMapping
-    public ResponseEntity<Transformacion> guardar(
+    public ResponseEntity<TransformacionFeedDto> guardar(
             @RequestBody TransformacionDto dto
     ) {
 
         System.out.println(
                 "USUARIO RECIBIDO: " + dto.getUsuarioId()
         );
+
 
         Usuario usuario = usuarioRepository
                 .findById(dto.getUsuarioId())
@@ -50,45 +51,33 @@ public class TransformacionController {
                         )
                 );
 
+
         Transformacion t = new Transformacion();
 
-        t.setNombreFiltro(
-                dto.getNombreFiltro()
-        );
+        t.setNombreFiltro(dto.getNombreFiltro());
+        t.setFecha(dto.getFecha());
+        t.setRutaImagen(dto.getRutaImagen());
+        t.setLeyenda(dto.getLeyenda());
+        t.setUsuario(usuario);
 
-        t.setFecha(
-                dto.getFecha()
-        );
 
-        t.setRutaImagen(
-                dto.getRutaImagen()
-        );
-
-        t.setLeyenda(
-                dto.getLeyenda()
-        );
-
-        t.setUsuario(
-                usuario
-        );
-
-        // NUEVO:
-        if (
-                dto.getImagenBase64() != null &&
-                        !dto.getImagenBase64().isBlank()
-        ) {
+        if(dto.getImagenBase64() != null &&
+                !dto.getImagenBase64().isBlank()) {
 
             byte[] bytes =
                     Base64.getDecoder()
-                            .decode(
-                                    dto.getImagenBase64()
-                            );
+                            .decode(dto.getImagenBase64());
 
             t.setImagen(bytes);
         }
 
+
+        Transformacion guardada =
+                transformacionRepository.save(t);
+
+
         return ResponseEntity.ok(
-                transformacionRepository.save(t)
+                toFeedDto(guardada)
         );
     }
 
