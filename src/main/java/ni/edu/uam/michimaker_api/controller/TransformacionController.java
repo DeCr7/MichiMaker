@@ -6,9 +6,11 @@ import ni.edu.uam.michimaker_api.entity.Transformacion;
 import ni.edu.uam.michimaker_api.entity.Usuario;
 import ni.edu.uam.michimaker_api.repository.TransformacionRepository;
 import ni.edu.uam.michimaker_api.repository.UsuarioRepository;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -27,78 +29,120 @@ public class TransformacionController {
         this.usuarioRepository = usuarioRepository;
     }
 
-    // 🔵 CREATE POST
-    @PostMapping
-    public ResponseEntity<Transformacion> guardar(@RequestBody TransformacionDto dto) {
+    // =========================
+    // CREATE
+    // =========================
 
-        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    @PostMapping
+    public ResponseEntity<Transformacion> guardar(
+            @RequestBody TransformacionDto dto
+    ) {
+
+        Usuario usuario = usuarioRepository
+                .findById(dto.getUsuarioId())
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "Usuario no encontrado"
+                        )
+                );
 
         Transformacion t = new Transformacion();
 
-        t.setNombreFiltro(dto.getNombreFiltro());
-        t.setFecha(dto.getFecha());
-        t.setRutaImagen(dto.getRutaImagen());
-        t.setLeyenda(dto.getLeyenda());
-        t.setUsuario(usuario);
+        t.setNombreFiltro(
+                dto.getNombreFiltro()
+        );
 
-        return ResponseEntity.ok(transformacionRepository.save(t));
+        t.setFecha(
+                dto.getFecha()
+        );
+
+        t.setRutaImagen(
+                dto.getRutaImagen()
+        );
+
+        t.setLeyenda(
+                dto.getLeyenda()
+        );
+
+        t.setUsuario(
+                usuario
+        );
+
+        // NUEVO:
+        if (
+                dto.getImagenBase64() != null &&
+                        !dto.getImagenBase64().isBlank()
+        ) {
+
+            byte[] bytes =
+                    Base64.getDecoder()
+                            .decode(
+                                    dto.getImagenBase64()
+                            );
+
+            t.setImagen(bytes);
+        }
+
+        return ResponseEntity.ok(
+                transformacionRepository.save(t)
+        );
     }
 
-    // 🔵 FEED GLOBAL (DTO)
+    // =========================
+    // FEED GLOBAL
+    // =========================
+
     @GetMapping("/feed")
     public ResponseEntity<List<TransformacionFeedDto>> feed() {
 
-        List<TransformacionFeedDto> feed = transformacionRepository
-                .findAllByOrderByIdDesc()
-                .stream()
-                .map(this::toFeedDto)
-                .toList();
+        List<TransformacionFeedDto> feed =
+                transformacionRepository
+                        .findAllByOrderByIdDesc()
+                        .stream()
+                        .map(this::toFeedDto)
+                        .toList();
 
         return ResponseEntity.ok(feed);
     }
 
-    // 🔵 FEED POR USUARIO (DTO)
-    @GetMapping("/usuario/{id}")
-    public ResponseEntity<List<TransformacionFeedDto>> porUsuario(@PathVariable Integer id) {
+    // =========================
+    // FEED POR USUARIO
+    // =========================
 
-        List<TransformacionFeedDto> lista = transformacionRepository
-                .findByUsuarioIdOrderByIdDesc(id)
-                .stream()
-                .map(this::toFeedDto)
-                .toList();
+    @GetMapping("/usuario/{id}")
+    public ResponseEntity<List<TransformacionFeedDto>> porUsuario(
+            @PathVariable Integer id
+    ) {
+
+        List<TransformacionFeedDto> lista =
+                transformacionRepository
+                        .findByUsuarioIdOrderByIdDesc(id)
+                        .stream()
+                        .map(this::toFeedDto)
+                        .toList();
 
         return ResponseEntity.ok(lista);
     }
 
-    // 🔧 MAPPER CENTRAL (IMPORTANTE)
-    private TransformacionFeedDto toFeedDto(Transformacion t) {
-
-        TransformacionFeedDto dto = new TransformacionFeedDto();
-
-        dto.setId(t.getId());
-        dto.setNombreFiltro(t.getNombreFiltro());
-        dto.setFecha(t.getFecha());
-        dto.setRutaImagen(t.getRutaImagen());
-        dto.setLeyenda(t.getLeyenda());
-
-        dto.setUsuarioId(t.getUsuario().getId());
-        dto.setUsername(t.getUsuario().getUsername());
-        dto.setFotoPerfil(t.getUsuario().getFotoPerfil());
-
-        return dto;
-    }
+    // =========================
+    // FEED ALEATORIO
+    // =========================
 
     @GetMapping("/feed/random")
     public ResponseEntity<List<TransformacionFeedDto>> feedRandom() {
 
         return ResponseEntity.ok(
-                transformacionRepository.feedAleatorio()
+                transformacionRepository
+                        .feedAleatorio()
                         .stream()
                         .map(this::toFeedDto)
                         .toList()
         );
     }
+
+    // =========================
+    // ELIMINAR
+    // =========================
 
     @DeleteMapping("/usuario/{id}")
     public ResponseEntity<Void> eliminarPorUsuario(
@@ -109,5 +153,62 @@ public class TransformacionController {
                 .deleteByUsuarioId(id);
 
         return ResponseEntity.ok().build();
+    }
+
+    // =========================
+    // MAPPER
+    // =========================
+
+    private TransformacionFeedDto toFeedDto(
+            Transformacion t
+    ) {
+
+        TransformacionFeedDto dto =
+                new TransformacionFeedDto();
+
+        dto.setId(
+                t.getId()
+        );
+
+        dto.setNombreFiltro(
+                t.getNombreFiltro()
+        );
+
+        dto.setFecha(
+                t.getFecha()
+        );
+
+        dto.setRutaImagen(
+                t.getRutaImagen()
+        );
+
+        dto.setLeyenda(
+                t.getLeyenda()
+        );
+
+        dto.setUsuarioId(
+                t.getUsuario().getId()
+        );
+
+        dto.setUsername(
+                t.getUsuario().getUsername()
+        );
+
+        dto.setFotoPerfil(
+                t.getUsuario().getFotoPerfil()
+        );
+
+        // NUEVO:
+        if (t.getImagen() != null) {
+
+            dto.setImagenBase64(
+                    Base64.getEncoder()
+                            .encodeToString(
+                                    t.getImagen()
+                            )
+            );
+        }
+
+        return dto;
     }
 }

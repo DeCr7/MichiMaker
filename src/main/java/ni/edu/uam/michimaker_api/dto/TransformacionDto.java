@@ -15,6 +15,8 @@ public class TransformacionDto {
 
     private String rutaImagen;
 
+    private String imagenBase64;
+
     private Integer usuarioId;
 
     private String leyenda;

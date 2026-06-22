@@ -21,6 +21,10 @@ public class Transformacion {
     @Column(length = 1000)
     private String rutaImagen;
 
+    @Lob
+    @Column(columnDefinition = "BYTEA")
+    private byte[] imagen;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "usuario_id",
@@ -29,7 +33,4 @@ public class Transformacion {
     private Usuario usuario;
 
     private String leyenda;
-
-    public Transformacion() {
-    }
 }
