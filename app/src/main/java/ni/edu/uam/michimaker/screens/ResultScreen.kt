@@ -28,9 +28,9 @@ fun ResultScreen(
 
     val gradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFBBDEFB), // azul claro
-            Color(0xFFD1C4E9), // violeta suave
-            Color(0xFFE3F2FD)  // azul hielo
+            Color(0xFFB3E5FC), // azul cielo
+            Color(0xFFE1BEE7), // violeta
+            Color(0xFFFCE4EC)  // rosa claro
         )
     )
 
@@ -233,7 +233,8 @@ fun ResultScreen(
                     modifier = Modifier.fillMaxWidth(),
 
                     enabled =
-                        state.resultadoImagen != null,
+                        state.resultadoImagen != null &&
+                                !state.guardando,
 
                     onClick = {
 
@@ -266,7 +267,32 @@ fun ResultScreen(
                         }
                     }
                 ) {
-                    Text("Guardar Transformación")
+                    if(state.guardando) {
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            CircularProgressIndicator(
+                                modifier =
+                                    Modifier.size(20.dp)
+                            )
+
+                            Spacer(
+                                Modifier.width(8.dp)
+                            )
+
+                            Text(
+                                "Guardando..."
+                            )
+                        }
+
+                    } else {
+
+                        Text(
+                            "Guardar Transformación"
+                        )
+                    }
                 }
 
                 Spacer(

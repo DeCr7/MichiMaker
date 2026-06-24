@@ -66,9 +66,9 @@ fun HistoryScreen(
     val gradient =
         Brush.verticalGradient(
             colors = listOf(
-                Color(0xFFFFC1CC),
-                Color(0xFFD7B3FF),
-                Color(0xFFFFD6A5)
+                Color(0xFFF8BBD0), // rosa viejo
+                Color(0xFFD1C4E9), // lavanda
+                Color(0xFFFFECB3)  // crema
             )
         )
 
@@ -371,6 +371,105 @@ fun HistoryScreen(
                                         text =
                                             item.leyenda ?: ""
                                     )
+
+                                    Spacer(
+                                        modifier = Modifier.height(12.dp)
+                                    )
+
+                                    var editando by remember {
+                                        mutableStateOf(false)
+                                    }
+
+                                    var nuevaLeyenda by remember {
+                                        mutableStateOf(
+                                            item.leyenda ?: ""
+                                        )
+                                    }
+
+                                    if (editando) {
+
+                                        OutlinedTextField(
+                                            value = nuevaLeyenda,
+
+                                            onValueChange = {
+                                                nuevaLeyenda = it
+                                            },
+
+                                            modifier = Modifier.fillMaxWidth(),
+
+                                            label = {
+                                                Text("Editar leyenda")
+                                            }
+                                        )
+
+                                        Spacer(
+                                            modifier = Modifier.height(8.dp)
+                                        )
+
+                                        Row(
+                                            horizontalArrangement =
+                                                Arrangement.spacedBy(8.dp)
+                                        ) {
+
+                                            Button(
+                                                onClick = {
+
+                                                    viewModel.actualizarLeyenda(
+                                                        item.id,
+                                                        nuevaLeyenda
+                                                    )
+
+                                                    editando = false
+                                                }
+                                            ) {
+
+                                                Text("Guardar")
+                                            }
+
+                                            OutlinedButton(
+                                                onClick = {
+
+                                                    editando = false
+
+                                                    nuevaLeyenda =
+                                                        item.leyenda ?: ""
+                                                }
+                                            ) {
+
+                                                Text("Cancelar")
+                                            }
+                                        }
+
+                                    } else {
+
+                                        Row(
+                                            horizontalArrangement =
+                                                Arrangement.spacedBy(8.dp)
+                                        ) {
+
+                                            Button(
+                                                onClick = {
+
+                                                    editando = true
+                                                }
+                                            ) {
+
+                                                Text("Editar")
+                                            }
+
+                                            Button(
+                                                onClick = {
+
+                                                    viewModel.eliminarTransformacion(
+                                                        item.id
+                                                    )
+                                                }
+                                            ) {
+
+                                                Text("Eliminar")
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

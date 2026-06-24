@@ -66,9 +66,9 @@ fun LoginScreen(
     val gradient =
         Brush.verticalGradient(
             colors = listOf(
-                Color(0xFFFFD1DC),
-                Color(0xFFFFE0B2),
-                Color(0xFFE1BEE7)
+                Color(0xFFE1F5FE), // azul nube
+                Color(0xFFF3E5F5), // lavanda clara
+                Color(0xFFFFF3E0)  // crema
             )
         )
 

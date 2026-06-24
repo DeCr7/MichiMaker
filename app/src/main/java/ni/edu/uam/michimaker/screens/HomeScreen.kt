@@ -45,9 +45,9 @@ fun HomeScreen(
 
     val gradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFFFD1DC),
-            Color(0xFFFFE0B2),
-            Color(0xFFE1BEE7)
+            Color(0xFFFFC1E3), // rosa pastel
+            Color(0xFFFFE0B2), // durazno
+            Color(0xFFC5CAE9)  // lavanda
         )
     )
 

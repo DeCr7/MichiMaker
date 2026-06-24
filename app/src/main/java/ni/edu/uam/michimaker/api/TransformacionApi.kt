@@ -8,6 +8,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.PUT
 
 interface TransformacionApi {
 
@@ -32,4 +33,20 @@ interface TransformacionApi {
     suspend fun eliminarPorUsuario(
         @Path("id") usuarioId: Int
     ): Response<Void>
+
+    @DELETE("transformaciones/{id}")
+    suspend fun eliminarTransformacion(
+        @Path("id") id: Int
+    ): Response<Void>
+
+    @PUT("transformaciones/{id}")
+    suspend fun actualizarLeyenda(
+
+        @Path("id")
+        id: Int,
+
+        @Body
+        transformacion: TransformacionDto
+
+    ): Response<TransformacionFeedDto>
 }

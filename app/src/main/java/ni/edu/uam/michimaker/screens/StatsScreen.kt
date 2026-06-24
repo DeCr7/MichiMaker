@@ -22,9 +22,9 @@ fun StatsScreen(
 
     val gradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFFFAB91),
-            Color(0xFFFFCC80),
-            Color(0xFFFF8A65)
+            Color(0xFFFFCCBC), // coral suave
+            Color(0xFFFFE0B2), // durazno
+            Color(0xFFFFF9C4)  // amarillo
         )
     )
 

@@ -107,7 +107,13 @@ class ResultViewModel(
 
             try {
 
-                // Convertir imagen local a Base64
+                _state.value =
+                    _state.value.copy(
+                        guardando = true,
+                        error = null
+                    )
+
+
                 val base64 =
                     ImageUtils.bitmapToBase64(
                         rutaImagen
@@ -124,20 +130,13 @@ class ResultViewModel(
                         fecha =
                             DateUtils.fechaActual(),
 
-                        // Puede quedar como referencia,
-                        // pero ya no dependemos de ella
                         rutaImagen = rutaImagen,
-
 
                         imagenBase64 = base64,
 
+                        usuarioId = usuarioId,
 
-                        usuarioId =
-                            usuarioId,
-
-
-                        leyenda =
-                            leyenda
+                        leyenda = leyenda
                     )
 
 
@@ -155,11 +154,35 @@ class ResultViewModel(
 
                 if(resultado) {
 
+                    _state.value =
+                        _state.value.copy(
+                            guardando = false
+                        )
+
                     onSuccess()
+
+                } else {
+
+                    _state.value =
+                        _state.value.copy(
+                            guardando = false,
+                            error = "No se pudo guardar"
+                        )
                 }
 
 
             } catch(e: Exception) {
+
+
+                _state.value =
+                    _state.value.copy(
+
+                        guardando = false,
+
+                        error =
+                            e.message
+                    )
+
 
                 Log.e(
                     "GUARDADO_ERROR",

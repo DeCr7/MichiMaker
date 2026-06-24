@@ -117,7 +117,62 @@ class TransformacionRepository {
         }
     }
 
+    suspend fun actualizarLeyenda(
+        id: Int,
+        leyenda: String
+    ): Boolean {
 
+        return try {
+
+            val dto = TransformacionDto(
+
+                id = id,
+
+                nombreFiltro = "",
+
+                fecha = "",
+
+                rutaImagen = "",
+
+                usuarioId = 0,
+
+                leyenda = leyenda,
+
+                imagenBase64 = null
+            )
+
+            val response =
+                ApiClient.api.actualizarLeyenda(
+                    id,
+                    dto
+                )
+
+            response.isSuccessful
+
+        } catch (e: Exception) {
+
+            false
+        }
+    }
+
+    suspend fun eliminarTransformacion(
+        id: Int
+    ): Boolean {
+
+        return try {
+
+            val response =
+                ApiClient.api.eliminarTransformacion(
+                    id
+                )
+
+            response.isSuccessful
+
+        } catch (e: Exception) {
+
+            false
+        }
+    }
 
     // =========================
     // HISTORIAL POR USUARIO

@@ -7,7 +7,7 @@ import kotlinx.coroutines.launch
 import ni.edu.uam.michimaker.dto.TransformacionDto
 import ni.edu.uam.michimaker.repository.TransformacionRepository
 import ni.edu.uam.michimaker.utils.TransformacionUiState
-
+import kotlinx.coroutines.flow.update
 
 class TransformacionViewModel(
     private val repository: TransformacionRepository,
@@ -69,6 +69,93 @@ class TransformacionViewModel(
         }
     }
 
+    fun actualizarLeyenda(
+        id: Int,
+        nuevaLeyenda: String
+    ) {
+
+        viewModelScope.launch {
+
+            try {
+
+                repository.actualizarLeyenda(
+                    id,
+                    nuevaLeyenda
+                )
+
+
+                _uiState.update { estado ->
+
+                    estado.copy(
+                        transformaciones =
+                            estado.transformaciones.map { item ->
+
+                                if(item.id == id) {
+
+                                    item.copy(
+                                        leyenda = nuevaLeyenda
+                                    )
+
+                                } else {
+
+                                    item
+                                }
+                            }
+                    )
+                }
+
+
+            } catch(e: Exception) {
+
+                _uiState.update { estado ->
+
+                    estado.copy(
+                        error = e.message
+                    )
+                }
+            }
+        }
+    }
+
+    fun eliminarTransformacion(
+        id: Int
+    ) {
+
+        viewModelScope.launch {
+
+            try {
+
+                repository.eliminarTransformacion(
+                    id
+                )
+
+
+                _uiState.update { estado ->
+
+                    estado.copy(
+
+                        transformaciones =
+                            estado.transformaciones.filter {
+                                it.id != id
+                            },
+
+                        total =
+                            estado.total - 1
+                    )
+                }
+
+
+            } catch(e: Exception) {
+
+                _uiState.update { estado ->
+
+                    estado.copy(
+                        error = e.message
+                    )
+                }
+            }
+        }
+    }
 
     fun guardar(
         transformacion: TransformacionDto

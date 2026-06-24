@@ -22,9 +22,9 @@ fun SettingsScreen(
 ) {
     val gradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFD7CCC8),
-            Color(0xFFBCAAA4),
-            Color(0xFFEFEBE9)
+            Color(0xFFCFD8DC), // gris azulado
+            Color(0xFFECEFF1),
+            Color(0xFFD7CCC8)
         )
     )
 

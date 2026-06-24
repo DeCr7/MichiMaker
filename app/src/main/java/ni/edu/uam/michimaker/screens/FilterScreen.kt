@@ -32,9 +32,9 @@ fun FilterScreen(
     // Fondo degradado (mismo estilo MichiMaker)
     val gradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFB2EBF2), // celeste suave
-            Color(0xFFC8E6C9), // verde pastel
-            Color(0xFFFFF9C4) // amarillo suave
+            Color(0xFFB2DFDB), // menta
+            Color(0xFFD1C4E9), // violeta
+            Color(0xFFFFF9C4)  // amarillo
         )
     )
 
