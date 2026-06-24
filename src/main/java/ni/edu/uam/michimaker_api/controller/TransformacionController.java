@@ -241,8 +241,43 @@ public class TransformacionController {
         );
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarIndividual(
+            @PathVariable Integer id
+    ) {
 
+        transformacionRepository.deleteById(id);
 
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TransformacionFeedDto> actualizarLeyenda(
+            @PathVariable Integer id,
+            @RequestBody TransformacionDto dto
+    ) {
+
+        Transformacion transformacion =
+                transformacionRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> new RuntimeException(
+                                        "Transformación no encontrada"
+                                )
+                        );
+
+        transformacion.setLeyenda(
+                dto.getLeyenda()
+        );
+
+        transformacionRepository.save(
+                transformacion
+        );
+
+        return ResponseEntity.ok(
+                toFeedDto(transformacion)
+        );
+    }
 
 
     // =========================
