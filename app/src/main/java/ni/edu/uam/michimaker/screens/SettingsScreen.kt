@@ -136,7 +136,7 @@ fun SettingsScreen(
             ) {
 
                 Text("MichiMaker")
-                Text("Versión 1.1")
+                Text("Versión 1.1.1")
                 Text("Filtros felinos con ML Kit")
             }
         }
