@@ -21,7 +21,7 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
             @Param("user2") Integer user2
     );
 
-    // 2. POLING: Obtener solo los mensajes nuevos que Android no ha visto (filtrando por el último ID recibido)
+    // 2. POLING: Obtener solo los mensajes nuevos que Android no ha visto
     @Query("SELECT m FROM Mensaje m WHERE " +
             "((m.remitenteId = :remitente AND m.receptorId = :receptor) OR " +
             "(m.remitenteId = :receptor AND m.receptorId = :remitente)) " +
@@ -33,7 +33,7 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
             @Param("ultimoId") Long ultimoId
     );
 
-    // 3. Obtener el listado de los últimos mensajes de cada conversación activa de un usuario
+    // 3. Restaurado: Devuelve List<Mensaje> limpia usando DISTINCT ON
     @Query(value = "SELECT DISTINCT ON (coalesce_user) m.* " +
             "FROM mensajes m " +
             "CROSS JOIN LATERAL (SELECT CASE WHEN m.remitente_id = :userId THEN m.receptor_id ELSE m.remitente_id END) o(coalesce_user) " +

@@ -4,6 +4,7 @@ import ni.edu.uam.michimaker_api.dto.ChatPreviewDto;
 import ni.edu.uam.michimaker_api.dto.MensajeDto;
 import ni.edu.uam.michimaker_api.entity.Mensaje;
 import ni.edu.uam.michimaker_api.repository.MensajeRepository;
+import ni.edu.uam.michimaker_api.repository.UsuarioRepository; // Asegúrate de tener este import
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,9 @@ public class MensajeController {
 
     @Autowired
     private MensajeRepository mensajeRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository; // Re-introducido para buscar nombres/fotos de forma segura
 
     // Endpoint 1: Enviar Mensaje
     @PostMapping("/enviar")
@@ -47,7 +51,7 @@ public class MensajeController {
         return ResponseEntity.ok(dtos);
     }
 
-    // Endpoint 3: EL ENDPOINT DEL POLLING (Android llamará a este repetidamente)
+    // Endpoint 3: EL ENDPOINT DEL POLLING
     @GetMapping("/nuevos")
     public ResponseEntity<List<MensajeDto>> obtenerNuevos(
             @RequestParam Integer remitente,
@@ -61,28 +65,12 @@ public class MensajeController {
         return ResponseEntity.ok(dtos);
     }
 
-    // Auxiliar para mapear entidad a DTO
-    private MensajeDto convertToDto(Mensaje m) {
-        MensajeDto dto = new MensajeDto();
-        dto.setId(m.getId());
-        dto.setRemitenteId(m.getRemitenteId());
-        dto.setReceptorId(m.getReceptorId());
-        dto.setContenido(m.getContenido());
-        dto.setLeido(m.isLeido());
-        dto.setFechaEnvio(m.getFechaEnvio().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        return dto;
-    }
-
-    @Autowired
-    private ni.edu.uam.michimaker_api.repository.UsuarioRepository usuarioRepository;
-
-    // Endpoint 4: Listado general de la bandeja de entrada
     @GetMapping("/bandeja/{userId}")
-    public ResponseEntity<List<ChatPreviewDto>> obtenerBandeja(@PathVariable Integer userId) {
+    public ResponseEntity<List<ChatPreviewDto>> obtenerBandejaEntrada(@PathVariable Integer userId) {
         List<Mensaje> ultimosMensajes = mensajeRepository.findUltimosMensajesPorUsuario(userId);
 
         List<ChatPreviewDto> bandeja = ultimosMensajes.stream().map(m -> {
-            // Determinar quién es el 'otro' usuario en la conversación
+            // Evaluamos dinámicamente quién es el OTRO usuario en la conversación
             Integer otroId = m.getRemitenteId().equals(userId) ? m.getReceptorId() : m.getRemitenteId();
             var otroUsuario = usuarioRepository.findById(otroId).orElse(null);
 
@@ -90,17 +78,39 @@ public class MensajeController {
             dto.setUsuarioId(otroId);
             dto.setUltimoMensaje(m.getContenido());
             dto.setLeido(m.isLeido());
-            dto.setFechaEnvio(m.getFechaEnvio().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+
+            if (m.getFechaEnvio() != null) {
+                dto.setFechaEnvio(m.getFechaEnvio().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+            } else {
+                dto.setFechaEnvio("");
+            }
 
             if (otroUsuario != null) {
                 dto.setUsername(otroUsuario.getUsername());
-                dto.setFotoPerfil(otroUsuario.getFotoPerfil());
+                dto.setFotoPerfil(otroUsuario.getFotoPerfil()); // Base64 directo de la entidad
             } else {
                 dto.setUsername("Usuario Eliminado");
+                dto.setFotoPerfil(null);
             }
             return dto;
         }).collect(Collectors.toList());
 
         return ResponseEntity.ok(bandeja);
+    }
+
+    // Auxiliar para mapear entidad a DTO
+    private MensajeDto convertToDto(Mensaje m) {
+        if (m == null) return null;
+
+        MensajeDto dto = new MensajeDto();
+        dto.setId(m.getId());
+        dto.setRemitenteId(m.getRemitenteId());
+        dto.setReceptorId(m.getReceptorId());
+        dto.setContenido(m.getContenido());
+        dto.setLeido(m.isLeido());
+        if (m.getFechaEnvio() != null) {
+            dto.setFechaEnvio(m.getFechaEnvio().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        }
+        return dto;
     }
 }

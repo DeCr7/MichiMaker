@@ -12,4 +12,17 @@ public class ChatPreviewDto {
     private String ultimoMensaje;
     private String fechaEnvio;
     private boolean leido;
+
+    // Constructor vacío requerido por Lombok / Jackson
+    public ChatPreviewDto() {}
+
+    // Constructor manual para mapear la consulta nativa limpia
+    public ChatPreviewDto(Integer usuarioId, String username, String fotoPerfil, String ultimoMensaje, String fechaEnvio, boolean leido) {
+        this.usuarioId = usuarioId;
+        this.username = username;
+        this.fotoPerfil = fotoPerfil;
+        this.ultimoMensaje = ultimoMensaje;
+        this.fechaEnvio = fechaEnvio;
+        this.leido = leido;
+    }
 }
