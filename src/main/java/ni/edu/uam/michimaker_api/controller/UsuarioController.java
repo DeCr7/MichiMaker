@@ -77,6 +77,13 @@ public class UsuarioController {
                 usuario
         );
     }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> obtenerPorId(@PathVariable Integer id) {
+        return repository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> actualizarPerfil(
