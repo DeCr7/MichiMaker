@@ -32,4 +32,12 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
             @Param("receptor") Integer receptor,
             @Param("ultimoId") Long ultimoId
     );
+
+    // 3. Obtener el listado de los últimos mensajes de cada conversación activa de un usuario
+    @Query(value = "SELECT DISTINCT ON (coalesce_user) m.* " +
+            "FROM mensajes m " +
+            "CROSS JOIN LATERAL (SELECT CASE WHEN m.remitente_id = :userId THEN m.receptor_id ELSE m.remitente_id END) o(coalesce_user) " +
+            "WHERE m.remitente_id = :userId OR m.receptor_id = :userId " +
+            "ORDER BY coalesce_user, m.fecha_envio DESC", nativeQuery = true)
+    List<Mensaje> findUltimosMensajesPorUsuario(@Param("userId") Integer userId);
 }

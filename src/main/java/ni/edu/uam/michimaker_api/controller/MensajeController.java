@@ -1,5 +1,6 @@
 package ni.edu.uam.michimaker_api.controller;
 
+import ni.edu.uam.michimaker_api.dto.ChatPreviewDto;
 import ni.edu.uam.michimaker_api.dto.MensajeDto;
 import ni.edu.uam.michimaker_api.entity.Mensaje;
 import ni.edu.uam.michimaker_api.repository.MensajeRepository;
@@ -70,5 +71,36 @@ public class MensajeController {
         dto.setLeido(m.isLeido());
         dto.setFechaEnvio(m.getFechaEnvio().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         return dto;
+    }
+
+    @Autowired
+    private ni.edu.uam.michimaker_api.repository.UsuarioRepository usuarioRepository;
+
+    // Endpoint 4: Listado general de la bandeja de entrada
+    @GetMapping("/bandeja/{userId}")
+    public ResponseEntity<List<ChatPreviewDto>> obtenerBandeja(@PathVariable Integer userId) {
+        List<Mensaje> ultimosMensajes = mensajeRepository.findUltimosMensajesPorUsuario(userId);
+
+        List<ChatPreviewDto> bandeja = ultimosMensajes.stream().map(m -> {
+            // Determinar quién es el 'otro' usuario en la conversación
+            Integer otroId = m.getRemitenteId().equals(userId) ? m.getReceptorId() : m.getRemitenteId();
+            var otroUsuario = usuarioRepository.findById(otroId).orElse(null);
+
+            ChatPreviewDto dto = new ChatPreviewDto();
+            dto.setUsuarioId(otroId);
+            dto.setUltimoMensaje(m.getContenido());
+            dto.setLeido(m.isLeido());
+            dto.setFechaEnvio(m.getFechaEnvio().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+
+            if (otroUsuario != null) {
+                dto.setUsername(otroUsuario.getUsername());
+                dto.setFotoPerfil(otroUsuario.getFotoPerfil());
+            } else {
+                dto.setUsername("Usuario Eliminado");
+            }
+            return dto;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(bandeja);
     }
 }
