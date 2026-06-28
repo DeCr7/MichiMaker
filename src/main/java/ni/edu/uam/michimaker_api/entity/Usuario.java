@@ -23,6 +23,10 @@ public class Usuario {
 
     private String nombre;
 
+    // Dentro de tu clase Usuario.java añade este campo:
+    @Column(length = 255)
+    private String biografia;
+
     @Column(unique = true)
     private String correo;
 

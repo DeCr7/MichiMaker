@@ -78,6 +78,23 @@ public class UsuarioController {
         );
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Usuario> actualizarPerfil(
+            @PathVariable Integer id,
+            @RequestBody UsuarioDto dto
+    ) {
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        usuario.setNombre(dto.getNombre());
+        usuario.setFotoPerfil(dto.getFotoPerfil());
+        if (dto.getBiografia() != null) {
+            usuario.setBiografia(dto.getBiografia());
+        }
+
+        return ResponseEntity.ok(repository.save(usuario));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<Usuario> login(
             @RequestBody UsuarioDto dto

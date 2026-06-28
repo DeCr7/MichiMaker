@@ -13,6 +13,9 @@ public class UsuarioDto {
 
     private String nombre;
 
+    // Dentro de tu clase UsuarioDto.java añade:
+    private String biografia;
+
     private String correo;
 
     private String password;
