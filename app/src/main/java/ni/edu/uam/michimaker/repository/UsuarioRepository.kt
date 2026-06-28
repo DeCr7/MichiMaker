@@ -3,6 +3,7 @@ package ni.edu.uam.michimaker.repository
 import android.util.Log
 import ni.edu.uam.michimaker.api.ApiClient
 import ni.edu.uam.michimaker.dto.UsuarioDto
+import ni.edu.uam.michimaker.utils.SessionManager
 
 class UsuarioRepository {
 
@@ -110,6 +111,45 @@ class UsuarioRepository {
             )
 
             null
+        }
+    }
+
+    suspend fun obtenerPorId(id: Int): UsuarioDto? {
+        return try {
+            val response = ApiClient.usuarioApi.obtenerPorId(id)
+            if (response.isSuccessful) response.body() else null
+        } catch (e: Exception) {
+            Log.e(TAG, "Error obteniendo usuario por id", e)
+            null
+        }
+    }
+
+    suspend fun actualizarPerfil(id: Int, dto: UsuarioDto): Boolean {
+        return try {
+            // 🔥 LOG INTERCEPCIÓN DE RED: Analiza si los datos salen con éxito de Android
+            Log.d(TAG, "=== TRANSMITIENDO ACTUALIZACIÓN A LA API ===")
+            Log.d(TAG, "ID Usuario Target: $id")
+            Log.d(TAG, "Nombre: ${dto.nombre}")
+            Log.d(TAG, "Biografía: ${dto.biografia ?: "Nula/Vacía"}")
+            Log.d(TAG, "Longitud Foto Perfil (Base64): ${dto.fotoPerfil?.length ?: 0}")
+
+            val response = ApiClient.usuarioApi.actualizarPerfil(id, dto)
+
+            Log.d(TAG, "Respuesta del Backend Código HTTP: ${response.code()}")
+
+            if (response.isSuccessful) {
+                response.body()?.let { updatedDto ->
+                    Log.d(TAG, "Sincronizando sesión local en SessionManager")
+                    SessionManager.guardarUsuario(updatedDto)
+                }
+                true
+            } else {
+                Log.e(TAG, "Error en el servidor al actualizar perfil: ${response.errorBody()?.string()}")
+                false
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Fallo crítico de conexión / Red", e)
+            false
         }
     }
 

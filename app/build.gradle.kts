@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation("androidx.compose.material:material-icons-extended")
 
     ksp("androidx.room:room-compiler:2.8.4")
 

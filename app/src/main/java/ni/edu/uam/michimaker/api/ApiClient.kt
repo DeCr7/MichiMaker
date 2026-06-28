@@ -25,6 +25,10 @@ object ApiClient {
         )
     }
 
+    val mensajeApi: MensajeApi by lazy {
+        retrofit.create(MensajeApi::class.java)
+    }
+
     val usuarioApi: UsuarioApi by lazy {
 
         retrofit.create(

@@ -1,39 +1,26 @@
 package ni.edu.uam.michimaker.navigation
 
 object Routes {
-
     // =====================
     // AUTH
     // =====================
-
-    const val LOGIN =
-        "login"
-
-    const val REGISTER =
-        "register"
+    const val LOGIN = "login"
+    const val REGISTER = "register"
 
     // =====================
     // APP
     // =====================
+    const val HOME = "home"
+    const val PROFILE = "profile?usuarioId={usuarioId}"
+    const val EDIT_PROFILE = "edit_profile"
+    const val CAMERA = "camera"
+    const val FILTER = "filter/{image}"
+    const val RESULT = "result/{image}/{filter}"
+    const val HISTORY = "history"
+    const val STATS = "stats"
+    const val SETTINGS = "settings"
 
-    const val HOME =
-        "home"
-
-    const val CAMERA =
-        "camera"
-
-    const val FILTER =
-        "filter/{image}"
-
-    const val RESULT =
-        "result/{image}/{filter}"
-
-    const val HISTORY =
-        "history"
-
-    const val STATS =
-        "stats"
-
-    const val SETTINGS =
-        "settings"
+    // 🔥 UNIFICACIÓN DE CHATS:
+    const val CHATS_LIST = "chats_list"
+    const val CHAT = "chat/{otroUsuarioId}/{otroUsername}"
 }

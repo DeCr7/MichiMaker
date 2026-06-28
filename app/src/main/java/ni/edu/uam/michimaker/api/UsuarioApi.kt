@@ -5,6 +5,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface UsuarioApi {
@@ -26,6 +27,17 @@ interface UsuarioApi {
 
     @POST("usuarios/login")
     suspend fun login(
+        @Body usuario: UsuarioDto
+    ): Response<UsuarioDto>
+
+    @GET("usuarios/{id}")
+    suspend fun obtenerPorId(
+        @Path("id") id: Int
+    ): Response<UsuarioDto>
+
+    @PUT("usuarios/{id}")
+    suspend fun actualizarPerfil(
+        @Path("id") id: Int,
         @Body usuario: UsuarioDto
     ): Response<UsuarioDto>
 }

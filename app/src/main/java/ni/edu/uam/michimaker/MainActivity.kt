@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import ni.edu.uam.michimaker.navigation.AppNavigation
 import ni.edu.uam.michimaker.repository.UsuarioRepository
 import ni.edu.uam.michimaker.ui.theme.MichiMakerTheme
+import ni.edu.uam.michimaker.utils.SessionManager
 
 class MainActivity : ComponentActivity() {
 
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
 
+        SessionManager.init(this)
         setContent {
             MichiMakerTheme {
                 AppNavigation()
