@@ -86,6 +86,9 @@ public class UsuarioController {
         Usuario usuario = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+        System.out.println("Backend recibió foto longitud: " + (dto.getFotoPerfil() != null ? dto.getFotoPerfil().length() : 0));
+        System.out.println("Backend recibió bio: " + dto.getBiografia());
+
         usuario.setNombre(dto.getNombre());
         usuario.setFotoPerfil(dto.getFotoPerfil());
         if (dto.getBiografia() != null) {

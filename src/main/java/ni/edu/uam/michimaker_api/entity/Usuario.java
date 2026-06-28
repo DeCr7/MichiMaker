@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +22,8 @@ public class Usuario {
 
     private String nombre;
 
-    // Dentro de tu clase Usuario.java añade este campo:
-    @Column(length = 255)
+    // CAMBIO: Usamos TEXT para que la biografía sea flexible
+    @Column(columnDefinition = "TEXT")
     private String biografia;
 
     @Column(unique = true)
@@ -33,6 +32,8 @@ public class Usuario {
     @JsonIgnore
     private String password;
 
+    // CAMBIO CRÍTICO: Usamos TEXT para que soporte la cadena Base64 sin límites de tamaño
+    @Column(columnDefinition = "TEXT")
     private String fotoPerfil;
 
     @JsonIgnore
@@ -41,8 +42,7 @@ public class Usuario {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private List<Transformacion> transformaciones =
-            new ArrayList<>();
+    private List<Transformacion> transformaciones = new ArrayList<>();
 
     public Usuario() {
     }
