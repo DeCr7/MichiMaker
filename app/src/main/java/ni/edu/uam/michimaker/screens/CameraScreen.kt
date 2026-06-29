@@ -9,6 +9,9 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,9 +22,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.FlashOff
+import androidx.compose.material.icons.filled.FlashAuto
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -46,8 +53,16 @@ fun CameraScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraState by viewModel.cameraState.collectAsState()
 
-    // Estado para alternar entre cámara trasera y frontal
     var lensFacing by remember { mutableStateOf(CameraSelector.LENS_FACING_BACK) }
+    var flashMode by remember { mutableStateOf(ImageCapture.FLASH_MODE_OFF) }
+
+    // Estado para controlar el destello blanco del obturador
+    var shutterTrigger by remember { mutableStateOf(false) }
+    val shutterAlpha by animateFloatAsState(
+        targetValue = if (shutterTrigger) 1f else 0f,
+        animationSpec = tween(durationMillis = 150),
+        finishedListener = { if (shutterTrigger) shutterTrigger = false }
+    )
 
     val previewView = remember { PreviewView(context) }
 
@@ -57,14 +72,12 @@ fun CameraScreen(
             .build()
     }
 
-    // Launcher para permisos
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         viewModel.actualizarPermiso(granted)
     }
 
-    // Verificar permisos iniciales
     LaunchedEffect(Unit) {
         viewModel.actualizarPermiso(PermissionManager.hasCameraPermission(context))
     }
@@ -81,7 +94,6 @@ fun CameraScreen(
         }
     }
 
-    // 🔥 SOLUCIÓN: Manejar el ciclo de vida y el switch mediante LaunchedEffect reactivo a lensFacing
     LaunchedEffect(lensFacing, cameraState.hasPermission) {
         if (!cameraState.hasPermission) return@LaunchedEffect
 
@@ -100,7 +112,7 @@ fun CameraScreen(
                 .build()
 
             try {
-                cameraProvider.unbindAll() // Desvincula la cámara activa anterior
+                cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
                     cameraSelector,
@@ -122,11 +134,40 @@ fun CameraScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // AndroidView simplificada (El LaunchedEffect se encarga de las actualizaciones)
         AndroidView(
             factory = { previewView },
             modifier = Modifier.fillMaxSize()
         )
+
+        // Botón para alternar los modos de Flash (Esquina superior izquierda)
+        IconButton(
+            onClick = {
+                flashMode = when (flashMode) {
+                    ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_ON
+                    ImageCapture.FLASH_MODE_ON -> ImageCapture.FLASH_MODE_AUTO
+                    else -> ImageCapture.FLASH_MODE_OFF
+                }
+            },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(24.dp)
+                .size(48.dp),
+            colors = androidx.compose.material3.IconButtonDefaults.iconButtonColors(
+                containerColor = Color.Black.copy(alpha = 0.5f),
+                contentColor = Color.White
+            )
+        ) {
+            val flashIcon = when (flashMode) {
+                ImageCapture.FLASH_MODE_ON -> Icons.Default.FlashOn
+                ImageCapture.FLASH_MODE_AUTO -> Icons.Default.FlashAuto
+                else -> Icons.Default.FlashOff
+            }
+            Icon(
+                imageVector = flashIcon,
+                contentDescription = "Cambiar Flash",
+                modifier = Modifier.size(24.dp)
+            )
+        }
 
         // Botón para cambiar de cámara (Esquina superior derecha)
         IconButton(
@@ -159,9 +200,15 @@ fun CameraScreen(
             contentAlignment = Alignment.BottomCenter
         ) {
             Button(
+                enabled = !cameraState.isCapturing, // Evita dobles clics accidentales
                 onClick = {
+                    shutterTrigger = true // Lanza destello visual
                     viewModel.iniciarCaptura()
+
                     val file = FileUtils.crearArchivoImagen(context)
+
+                    // Asignamos el modo de flash justo antes del disparo
+                    imageCapture.flashMode = flashMode
                     val outputOptions = ImageCapture.OutputFileOptions.Builder(file).build()
 
                     imageCapture.takePicture(
@@ -181,8 +228,16 @@ fun CameraScreen(
                     )
                 }
             ) {
-                Text("Capturar")
+                Text(if (cameraState.isCapturing) "Procesando..." else "Capturar")
             }
         }
+
+        // Capa superpuesta del obturador mecánico (Animación Shutter)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(shutterAlpha)
+                .background(Color.White)
+        )
     }
 }

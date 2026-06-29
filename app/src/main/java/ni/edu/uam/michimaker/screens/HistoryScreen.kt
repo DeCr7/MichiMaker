@@ -251,12 +251,17 @@ fun HistoryScreen(
                                         var nuevaLeyenda by remember { mutableStateOf(item.leyenda ?: "") }
 
                                         if (editando) {
+                                            // Variable local para consistencia de color de texto
+                                            val inputTextColor = if (isDarkMode) Color.White else Color(0xFF2C1B2E)
+
                                             OutlinedTextField(
                                                 value = nuevaLeyenda,
                                                 onValueChange = { nuevaLeyenda = it },
                                                 modifier = Modifier.fillMaxWidth(),
                                                 label = { Text("Editar leyenda") },
                                                 colors = OutlinedTextFieldDefaults.colors(
+                                                    focusedTextColor = inputTextColor, // 🌟 Corregido: Color del texto enfocado
+                                                    unfocusedTextColor = inputTextColor, // 🌟 Corregido: Color del texto desenfocado
                                                     focusedBorderColor = if (isDarkMode) Color(0xFFE1BEE7) else Color(0xFF6A1B9A),
                                                     unfocusedBorderColor = if (isDarkMode) Color.Gray else Color(0xFF5C535E),
                                                     focusedLabelColor = if (isDarkMode) Color(0xFFE1BEE7) else Color(0xFF6A1B9A),

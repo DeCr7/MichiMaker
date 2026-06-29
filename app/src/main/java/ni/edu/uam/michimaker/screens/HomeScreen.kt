@@ -17,7 +17,9 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -64,7 +66,6 @@ fun HomeScreen(
     val feedPosts by viewModel.feedState.collectAsState()
     val isRefreshing by viewModel.isRefreshingFeed.collectAsState()
 
-    // 🔥 CORRECCIÓN CRÍTICA: Leer la preferencia real de SessionManager en lugar del sistema operativo
     val darkTheme = remember { SessionManager.esModoOscuroActivo() }
 
     val gradientColors = if (darkTheme) {
@@ -77,9 +78,28 @@ fun HomeScreen(
     Scaffold(
         containerColor = Color.Transparent,
         topBar = {
+            var mostrarMenu by remember { mutableStateOf(false) }
+
             TopAppBar(
-                title = {},
+                title = {
+                    Text(
+                        text = "MichiMaker",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 19.sp, // Reducido ligeramente para dar más espacio
+                        color = if (darkTheme) Color.White else Color(0xFF2C1B2E)
+                    )
+                },
                 actions = {
+                    // 🔍 ACCIÓN PRINCIPAL 1: Buscar
+                    IconButton(onClick = { navController.navigate(Routes.SEARCH_USER) }) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Buscar Amigos",
+                            tint = if (darkTheme) Color(0xFFE1BEE7) else Color(0xFF6A1B9A)
+                        )
+                    }
+
+                    // 💬 ACCIÓN PRINCIPAL 2: Chats
                     IconButton(onClick = { navController.navigate(Routes.CHATS_LIST) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Chat,
@@ -88,49 +108,76 @@ fun HomeScreen(
                         )
                     }
 
+                    // 📷 ACCIÓN PRINCIPAL 3: Cámara
                     IconButton(onClick = { navController.navigate(Routes.CAMERA) }) {
                         Icon(
-                            Icons.Default.CameraAlt,
+                            imageVector = Icons.Default.CameraAlt,
                             contentDescription = "Cámara",
                             tint = if (darkTheme) Color(0xFFE1BEE7) else Color(0xFF6A1B9A)
                         )
                     }
-                    IconButton(onClick = { navController.navigate(Routes.HISTORY) }) {
-                        Icon(
-                            Icons.Default.History,
-                            contentDescription = "Historial",
-                            tint = if (darkTheme) Color.White else Color(0xFF2C1B2E)
-                        )
-                    }
-                    IconButton(onClick = { navController.navigate(Routes.STATS) }) {
-                        Icon(
-                            Icons.Default.BarChart,
-                            contentDescription = "Estadísticas",
-                            tint = if (darkTheme) Color.White else Color(0xFF2C1B2E)
-                        )
-                    }
+
+                    // 👤 ACCIÓN PRINCIPAL 4: Perfil
                     IconButton(onClick = {
                         val destinoPerfil = Routes.PROFILE.replace("{usuarioId}", (usuario?.id ?: 0).toString())
                         navController.navigate(destinoPerfil)
                     }) {
                         Icon(
-                            Icons.Default.Person,
+                            imageVector = Icons.Default.Person,
                             contentDescription = "Mi Perfil",
                             tint = if (darkTheme) Color(0xFFB39DDB) else Color(0xFF673AB7)
                         )
                     }
-                    IconButton(onClick = { navController.navigate(Routes.SETTINGS) }) {
-                        Icon(
-                            Icons.Default.Settings,
-                            contentDescription = "Configuración",
-                            tint = if (darkTheme) Color.White else Color(0xFF2C1B2E)
-                        )
-                    }
-                    IconButton(onClick = {
-                        SessionManager.logout()
-                        navController.navigate(Routes.LOGIN) { popUpTo(0) }
-                    }) {
-                        Icon(Icons.Default.Logout, contentDescription = "Salir", tint = Color(0xFFEF5350))
+
+                    // 📦 MENÚ DESPLEGABLE (Agrupa las acciones secundarias para liberar espacio)
+                    Box {
+                        IconButton(onClick = { mostrarMenu = true }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "Más opciones",
+                                tint = if (darkTheme) Color.White else Color(0xFF2C1B2E)
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = mostrarMenu,
+                            onDismissRequest = { mostrarMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Historial") },
+                                leadingIcon = { Icon(Icons.Default.History, contentDescription = null) },
+                                onClick = {
+                                    mostrarMenu = false
+                                    navController.navigate(Routes.HISTORY)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Estadísticas") },
+                                leadingIcon = { Icon(Icons.Default.BarChart, contentDescription = null) },
+                                onClick = {
+                                    mostrarMenu = false
+                                    navController.navigate(Routes.STATS)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Configuración") },
+                                leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                                onClick = {
+                                    mostrarMenu = false
+                                    navController.navigate(Routes.SETTINGS)
+                                }
+                            )
+                            Divider() // Una línea divisoria antes de cerrar sesión
+                            DropdownMenuItem(
+                                text = { Text("Salir", color = Color(0xFFEF5350)) },
+                                leadingIcon = { Icon(Icons.Default.Logout, contentDescription = null, tint = Color(0xFFEF5350)) },
+                                onClick = {
+                                    mostrarMenu = false
+                                    SessionManager.logout()
+                                    navController.navigate(Routes.LOGIN) { popUpTo(0) }
+                                }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

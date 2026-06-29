@@ -1,5 +1,6 @@
 package ni.edu.uam.michimaker.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,11 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import ni.edu.uam.michimaker.navigation.Routes
+import ni.edu.uam.michimaker.utils.FileUtils
 import ni.edu.uam.michimaker.utils.ImageUtils
 import ni.edu.uam.michimaker.utils.SessionManager
 import ni.edu.uam.michimaker.viewmodel.ResultViewModel
@@ -26,33 +29,18 @@ fun ResultScreen(
     filter: String,
     viewModel: ResultViewModel = viewModel()
 ) {
-    // 🔥 CORRECCIÓN CRÍTICA: Reemplazar la lectura del sistema por la de SessionManager
+    val context = LocalContext.current
     val darkTheme = remember { SessionManager.esModoOscuroActivo() }
 
-    // Gradiente adaptativo para no romper la estética mística/felina en modo oscuro
     val gradientColors = if (darkTheme) {
-        listOf(
-            Color(0xFF152238), // Azul noche profundo
-            Color(0xFF2D1B33), // Violeta oscuro
-            Color(0xFF2C1A24)  // Rosa viejo / vino oscuro
-        )
+        listOf(Color(0xFF152238), Color(0xFF2D1B33), Color(0xFF2C1A24))
     } else {
-        listOf(
-            Color(0xFFB3E5FC), // azul cielo
-            Color(0xFFE1BEE7), // violeta
-            Color(0xFFFCE4EC)  // rosa claro
-        )
+        listOf(Color(0xFFB3E5FC), Color(0xFFE1BEE7), Color(0xFFFCE4EC))
     }
     val gradient = Brush.verticalGradient(colors = gradientColors)
 
-    val usuario by remember {
-        mutableStateOf(SessionManager.obtenerUsuario())
-    }
-
-    var leyenda by remember {
-        mutableStateOf("")
-    }
-
+    val usuario by remember { mutableStateOf(SessionManager.obtenerUsuario()) }
+    var leyenda by remember { mutableStateOf("") }
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(image, filter) {
@@ -65,7 +53,6 @@ fun ResultScreen(
         } ?: ImageUtils.cargarBitmap(image)
     }
 
-    // Definición de color base para textos libres según el fondo
     val textColor = if (darkTheme) Color.White else Color(0xFF2C1B2E)
 
     Column(
@@ -154,10 +141,10 @@ fun ResultScreen(
                     singleLine = false,
                     minLines = 3,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = textColor,            // 🔥 Asegura legibilidad al escribir activo
-                        unfocusedTextColor = textColor,          // 🔥 Asegura legibilidad al escribir inactivo
-                        focusedPlaceholderColor = textColor.copy(alpha = 0.6f), // 🔥 Contraste para el texto de sugerencia activo
-                        unfocusedPlaceholderColor = textColor.copy(alpha = 0.5f), // 🔥 Contraste para el texto de sugerencia inactivo
+                        focusedTextColor = textColor,
+                        unfocusedTextColor = textColor,
+                        focusedPlaceholderColor = textColor.copy(alpha = 0.6f),
+                        unfocusedPlaceholderColor = textColor.copy(alpha = 0.5f),
                         focusedLabelColor = customAccentColor,
                         unfocusedLabelColor = if (darkTheme) Color.LightGray else Color.Gray,
                         focusedBorderColor = customAccentColor,
@@ -182,6 +169,13 @@ fun ResultScreen(
                             usuarioId = usuario?.id ?: 0,
                             leyenda = leyenda
                         ) {
+                            // En el callback de guardado exitoso, mandamos la imagen final a la galería pública
+                            val guardadoGaleria = FileUtils.guardarEnGaleriaPublica(context, rutaResultado)
+                            if (guardadoGaleria) {
+                                Toast.makeText(context, "¡Guardado en el Historial y Galería! 📸✨", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(context, "Guardado en Historial (Error al exportar a Galería)", Toast.LENGTH_SHORT).show()
+                            }
                             navController.navigate(Routes.HISTORY)
                         }
                     }

@@ -183,7 +183,7 @@ fun SettingsScreen(
                     color = textColor
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Versión 1.1.3", style = MaterialTheme.typography.bodySmall, color = subTextColor)
+                Text(text = "Versión 1.1.4", style = MaterialTheme.typography.bodySmall, color = subTextColor)
                 Text(text = "Filtros felinos con ML Kit", style = MaterialTheme.typography.bodySmall, color = subTextColor)
             }
         }

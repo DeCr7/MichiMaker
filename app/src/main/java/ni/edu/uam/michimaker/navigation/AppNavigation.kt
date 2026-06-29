@@ -39,6 +39,10 @@ fun AppNavigation() {
             )
         }
 
+        composable(Routes.SEARCH_USER) { // Asegúrate de agregar const val SEARCH_USER = "search_user" en tus Routes si no lo has hecho
+            SearchUserScreen(navController = navController)
+        }
+
         composable(
             route = Routes.PROFILE,
             arguments = listOf(

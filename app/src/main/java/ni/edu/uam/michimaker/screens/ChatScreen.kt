@@ -5,6 +5,7 @@ import android.util.Base64
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import ni.edu.uam.michimaker.dto.MensajeDto
+import ni.edu.uam.michimaker.navigation.Routes
 import ni.edu.uam.michimaker.utils.SessionManager
 import ni.edu.uam.michimaker.viewmodel.ChatViewModel
 
@@ -93,12 +95,18 @@ fun ChatScreen(
     Scaffold(
         containerColor = Color.Transparent,
         topBar = {
-// Cambia el bloque del TopAppBar para que se vea así:
             TopAppBar(
                 title = {
+                    // 👆 Se agrega el modificador .clickable a la fila superior completa
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val destinoPerfil = Routes.PROFILE.replace("{usuarioId}", otroUsuarioId.toString())
+                                navController.navigate(destinoPerfil)
+                            }
+                            .padding(vertical = 4.dp)
                     ) {
                         if (fotoBitmap != null) {
                             Image(
@@ -122,8 +130,6 @@ fun ChatScreen(
 
                         Column {
                             Text(
-                                // 🔥 CORRECCIÓN: Si el nombre recuperado del viewmodel da error, está vacío o es "MichiAmigo",
-                                // usamos el 'otroUsername' que viene directo y seguro desde la navegación del NavHost.
                                 text = if (nombreOtroUsuario.isNullOrBlank() || nombreOtroUsuario == "Cargando..." || nombreOtroUsuario == "MichiAmigo") {
                                     "@$otroUsername"
                                 } else {

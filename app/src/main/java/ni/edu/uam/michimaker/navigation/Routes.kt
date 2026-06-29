@@ -20,6 +20,8 @@ object Routes {
     const val STATS = "stats"
     const val SETTINGS = "settings"
 
+    const val SEARCH_USER = "search_user"
+
     // 🔥 UNIFICACIÓN DE CHATS:
     const val CHATS_LIST = "chats_list"
     const val CHAT = "chat/{otroUsuarioId}/{otroUsername}"
