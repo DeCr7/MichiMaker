@@ -133,7 +133,7 @@ class CatFilterManager(
 
         val earsHeight =
             cara.height().toFloat() *
-                    0.6f
+                    0.6f * (earsScale / 0.75f)
 
         resultado =
             overlayManager.aplicarOverlay(
@@ -156,9 +156,10 @@ class CatFilterManager(
             cara.width().toFloat() *
                     noseScale
 
+        // 🌟 Modificado: Se subió el multiplicador base a 0.45f para estirarlo verticalmente y corregir el aspecto achatado
         val noseHeight =
             cara.height().toFloat() *
-                    0.35f
+                    0.45f * (noseScale / 0.85f)
 
         resultado =
             overlayManager.aplicarOverlay(
